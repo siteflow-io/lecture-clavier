@@ -163,8 +163,9 @@ body:not(.mz) #mzBar{display:none!important}
 <button id="micPiano" aria-pressed="false" title="Suivi expérimental du piano acoustique par microphone. En mode Morceau, la barre attend les notes des parties réglées sur moi. Aucun son n’est enregistré ni envoyé.">Micro piano</button>
 <span id="micControls" hidden><label class="lab">Niveau <meter id="micLevel" min="0" max="1" value="0" aria-label="Niveau du microphone"></meter></label>
 <label class="lab">Sensibilité <input id="micSensitivity" type="range" min="-2" max="4" value="0" step="1" title="Augmente si le piano est trop faible ; diminue si le bruit déclenche le suivi."></label>
+<label class="lab">Accords <select id="micChordMode" title="Souples : au moins deux tiers des notes pour les accords de trois notes ou plus. Complets : toutes les notes. Le micro ne note pas les fautes."><option value="loose">souples</option><option value="strict">complets</option></select></label>
 <button id="micCalibrate">Recalibrer le silence</button></span>
-<span id="micStatus" class="small" role="status" aria-live="polite">Suivi micro expérimental · mode Morceau · piano acoustique</span>
+<span id="micStatus" class="small" role="status" aria-live="polite">Suivi micro v2 · mode Morceau · piano acoustique</span>
 </div>
 <details id="micDiagnostic" hidden style="flex:none;max-height:180px;overflow:auto"><summary>Diagnostic microphone</summary><pre id="micDiagnosticText" style="white-space:pre-wrap;font-size:12px;user-select:text"></pre></details>
 
@@ -283,7 +284,7 @@ body:not(.mz) #mzBar{display:none!important}
 <p><b>Accords</b> : trois notes qui sont empilées, toutes sur des lignes ou toutes dans des espaces. Joue-les ensemble. À la souris, chaque clic enfonce ou relâche une touche.</p>
 <h3>Le morceau</h3>
 <p><b>Micro piano — expérimental.</b> En mode Morceau, règle les parties jouées sur « moi », place la barre au départ du passage, puis clique sur « Micro piano ». Autorise le microphone et garde le silence une seconde. Joue ensuite les notes en bleu. Le traitement reste sur cet appareil : aucun enregistrement ni envoi audio. Le niveau indique si le piano est capté. « Recalibrer le silence » mesure de nouveau le bruit ambiant ; la sensibilité ajuste le seuil de volume.</p>
-<p>Le suivi compare le spectre aux notes attendues et attend une nouvelle attaque avant de valider une répétition. Il avance dans l’ordre, sans sauter vers un motif semblable. Il ne retrouve pas automatiquement une mesure perdue : utilise les flèches de mesure ou les commandes habituelles de placement. La barre montre le prochain événement à jouer. Les notes tenues, la pédale forte, les graves, les ornements et les accords denses peuvent bloquer ou tromper la reconnaissance. Commence lentement, une main à la fois. Le MIDI reste préférable pour les doubles croches rapides. Les statistiques de fautes ne sont pas alimentées par le micro.</p>
+<p>Le suivi compare le spectre aux notes attendues et attend une nouvelle attaque avant de valider une répétition. Il avance dans l’ordre, sans sauter vers un motif semblable. Il ne retrouve pas automatiquement une mesure perdue : utilise les flèches de mesure ou les commandes habituelles de placement. La barre montre le prochain événement à jouer. Les notes tenues, la pédale forte, les graves, les ornements et les accords denses peuvent bloquer ou tromper la reconnaissance. Commence lentement, une main à la fois. Le MIDI reste préférable pour les doubles croches rapides. Le réglage « Accords : souples » accepte au moins deux tiers des notes pour un accord de trois notes ou plus ; « complets » attend toutes les notes. Les notes reconnues sont regroupées sur 140 ms pour accepter les attaques légèrement décalées. Les statistiques de fautes ne sont pas alimentées par le micro.</p>
 <p>L’accompagnement de la page est muet pendant le suivi micro. « Écouter », changer de morceau ou de mode, et ouvrir le pupitre arrêtent le micro. Pour l’utiliser, ouvre le fichier dans un navigateur autorisant le microphone, de préférence Chrome ou Edge ; HTTPS et localhost sont aussi acceptés. Cette fonction concerne les morceaux avec données de notes, pas les images de PDF. L’orgue acoustique n’est pas validé.</p>
 <p>La vraie partition s'affiche page par page. La note ou l'accord à jouer est en bleu, avec une bande bleue derrière. La page attend que tu le joues, puis passe à la suite ; les notes que tu as jouées deviennent vertes, ou rouges s'il y a eu une faute. Quand tu arrives au bout d'une page, la suivante s'affiche toute seule.</p>
 <p>« Son », dans Réglages, choisit d'où vient le son de ce que joue la page. « piano » : la page envoie les notes à ton piano par le câble, et lui demande le son d'orgue dont le numéro s'affiche à côté (« Orgue n° ») ; tes propres notes sonnent alors aussi à l'orgue. Le numéro de l'orgue à tuyaux change d'un modèle de piano à l'autre : si tu entends un autre son, clique sur ◀ ou ▶ à côté du numéro, le piano joue aussitôt un accord avec le nouveau son ; la page garde le numéro que tu as choisi. Elle redemande ce son au piano à chaque fois que tu cliques sur Écouter. « ordinateur » : un orgue d'église joué par l'ordinateur, avec les jeux tirés dans « Jeux » (au départ, les fonds : Montre 8, Prestant 4, Doublette 2 au Grand-Orgue ; Soubasse 16, Flûtes 8 et 4 à la pédale). Ce que tu joues au piano sonne alors aussi par l'ordinateur, avec le même orgue : baisse le volume du piano pour n'entendre que l'ordinateur.</p>
@@ -6690,60 +6691,74 @@ navigator.requestMIDIAccess({sysex:false}).then(a=>{MA=a;bindInputs();MA.onstate
 $('retry').addEventListener('click',initMidi);
 
 // Suivi acoustique guidé, local, expérimental. Aucun enregistrement ni envoi audio.
-// Décomposition spectrale non négative sur 88 modèles harmoniques ; ce n'est pas
-// une transcription générale. La partition détermine les notes à confirmer.
 class PianoSpectrum {
- constructor(rate, size){
-  this.rate=rate;this.size=size;this.columns=[];this.previous=null;
+ constructor(rate,size){
+  this.rate=rate;this.size=size;this.columns=[];this.previous=null;this.noise=null;
+  this.y=new Float32Array(size/2);this.residual=new Float32Array(size/2);this.coeff=new Float32Array(88);
   for(let midi=21;midi<=108;midi++){
    const bins=new Map(),f=440*Math.pow(2,(midi-69)/12),center=f*size/rate;
    for(let h=1;h<=7;h++){
     const b=center*h;if(b>=size/2-3)break;
     for(let k=Math.max(1,Math.floor(b)-2);k<=Math.ceil(b)+2;k++){
-     const x=k-b;
-     // Main lobe of the Blackman window used by AnalyserNode.
-     const sinc=v=>Math.abs(v)<1e-8?1:Math.sin(Math.PI*v)/(Math.PI*v);
+     const x=k-b,sinc=v=>Math.abs(v)<1e-8?1:Math.sin(Math.PI*v)/(Math.PI*v);
      const w=Math.abs(.42*sinc(x)+.25*(sinc(x-1)+sinc(x+1))+.04*(sinc(x-2)+sinc(x+2)));
      if(w>.003)bins.set(k,(bins.get(k)||0)+w/Math.pow(h,1.15));
     }
    }
    const a=[...bins],norm=Math.sqrt(a.reduce((s,p)=>s+p[1]*p[1],0));
-   this.columns.push(a.map(([k,v])=>[k,v/norm]));
+   this.columns.push({bins:Uint16Array.from(a,p=>p[0]),weights:Float32Array.from(a,p=>p[1]/norm)});
   }
  }
+ calibrate(db){
+  if(!this.noise)this.noise=new Float32Array(db.length);
+  for(let k=0;k<db.length;k++){const v=Number.isFinite(db[k])?Math.pow(10,db[k]/20):0;this.noise[k]=this.noise[k]===0?v:.85*this.noise[k]+.15*v}
+ }
  analyse(db){
-  const y=Float32Array.from(db,v=>Number.isFinite(v)&&v>-95?Math.pow(10,v/20):0);
-  let energy=0,flux=0;for(let k=2;k<y.length;k++){energy+=y[k];if(this.previous)flux+=Math.max(0,y[k]-this.previous[k])}
-  this.previous=y.slice();const residual=y.slice(),coeff=new Float32Array(88);
-  // Coordinate descent fits simultaneous notes and reduces octave/harmonic ghosts.
-  for(let pass=0;pass<7;pass++)for(let p=0;p<88;p++){
-   const col=this.columns[p];let dot=0;for(const [k,v] of col)dot+=residual[k]*v;
-   const next=Math.max(0,coeff[p]+dot),delta=next-coeff[p];coeff[p]=next;
-   if(delta)for(const [k,v] of col)residual[k]-=delta*v;
+  const y=this.y,r=this.residual,c=this.coeff;let energy=0,flux=0,power=0;
+  for(let k=0;k<y.length;k++){
+   const v=Number.isFinite(db[k])&&db[k]>-105?Math.pow(10,db[k]/20):0;
+   y[k]=Math.max(0,v-(this.noise?this.noise[k]*1.4:0));
+   if(k>1){energy+=y[k];power+=y[k]*y[k];if(this.previous)flux+=Math.max(0,y[k]-this.previous[k])}
   }
-  const top=Math.max(...coeff),notes=new Map();
-  for(let p=0;p<88;p++)if(top>0&&coeff[p]>top*.12)notes.set(p+21,coeff[p]/top);
-  return {notes,flux:energy?flux/energy:0,energy};
+  if(!this.previous)this.previous=new Float32Array(y.length);this.previous.set(y);r.set(y);c.fill(0);
+  // Flat typed arrays and reused buffers avoid the per-frame iterator/GC load.
+  for(let pass=0;pass<6;pass++)for(let p=0;p<88;p++){
+   const col=this.columns[p],b=col.bins,w=col.weights;let dot=0;
+   for(let i=0;i<b.length;i++)dot+=r[b[i]]*w[i];
+   const next=Math.max(0,c[p]+dot),delta=next-c[p];c[p]=next;
+   if(delta)for(let i=0;i<b.length;i++)r[b[i]]-=delta*w[i];
+  }
+  let top=0,error=0;for(let p=0;p<88;p++)top=Math.max(top,c[p]);for(let k=2;k<r.length;k++)error+=r[k]*r[k];
+  const notes=new Map();for(let p=0;p<88;p++)if(top>0&&c[p]>top*.055)notes.set(p+21,c[p]/top);
+  return {notes,flux:energy?flux/energy:0,energy,confidence:power?Math.max(0,1-error/power):0};
  }
 }
 class PianoAttackGate {
  constructor(){this.reset()}
- reset(){this.last=-Infinity;this.pending=-Infinity;this.lastFlux=0;this.silent=true;this.stable=0;this.key=null;this.previous=new Map();this.blocked=new Set()}
- update(now,frame,want,level,threshold,key){
-  if(key!==this.key){this.key=key;this.stable=0;this.pending=-Infinity}
-  if(level<threshold){this.silent=true;this.pending=-Infinity;this.stable=0;this.previous=new Map();this.blocked.clear();return false}
-  // Need a new attack or genuinely new pitch evidence, never mere sustain.
-  const novelty=want.some(m=>(frame.notes.get(m)||0)>.23&&(this.previous.get(m)||0)<.10&&!this.blocked.has(m));
-  const onset=(this.silent||novelty||(frame.flux>.19&&this.lastFlux<=.19));
-  if(onset&&now-this.last>=85){this.pending=now;this.stable=0}
-  this.silent=false;this.lastFlux=frame.flux;this.previous=frame.notes;
-  for(const m of [...this.blocked])if((frame.notes.get(m)||0)<.10)this.blocked.delete(m);
-  if(!want.length||now-this.pending>180||now-this.last<85)return false;
-  const hit=want.every(m=>(frame.notes.get(m)||0)>=.18);
-  // Two independent analysis frames, not a timer that advances on its own.
-  this.stable=hit?this.stable+1:0;
-  if(this.stable<2)return false;
-  this.last=now;this.pending=-Infinity;this.stable=0;this.blocked=new Set(frame.notes.keys());return true;
+ reset(){this.last=-Infinity;this.pending=-Infinity;this.lastFlux=0;this.silent=true;this.stable=0;this.key=null;this.previous=new Map();this.blocked=new Set();this.seen=new Map();this.lastLevel=0;this.armed=true;this.onsetAfter=-Infinity}
+ update(now,frame,want,level,threshold,key,loose=true){
+  if(key!==this.key){this.key=key;this.stable=0;this.pending=-Infinity;this.seen.clear()}
+  if(level<threshold){this.silent=true;this.pending=-Infinity;this.stable=0;this.previous=new Map();this.blocked.clear();this.seen.clear();this.lastLevel=level;this.lastFlux=0;this.armed=true;return false}
+  const novelty=want.some(m=>(frame.notes.get(m)||0)>.20&&(this.previous.get(m)||0)<.08&&!this.blocked.has(m));
+  // A fresh spectral rise plus a volume rise re-arms a repeated note. Mere
+  // spectral fluctuations of a decaying piano tone must not count as attacks.
+  const spectralAttack=frame.flux>.12&&(this.armed||this.lastFlux<.06)&&(level>this.lastLevel*1.06||frame.flux>.32);
+  const onset=this.silent||novelty||spectralAttack;
+  if(frame.flux<.05)this.armed=true;
+  if(onset&&now-this.last>=55&&now-this.onsetAfter>=55){this.pending=now;this.seen.clear();this.stable=0;this.armed=false;this.onsetAfter=now}
+  this.silent=false;this.lastFlux=frame.flux;this.lastLevel=level;this.previous=frame.notes;
+  for(const m of [...this.blocked])if((frame.notes.get(m)||0)<.08)this.blocked.delete(m);
+  if(!want.length||now-this.pending>650||now-this.last<55)return false;
+  if(frame.confidence!==undefined&&frame.confidence<.5){this.stable=0;return false}
+  // Accumulate chord members over a short attack, rather than demanding that
+  // every quiet/rolled note exceed the same global threshold in one frame.
+  for(const m of want)if((frame.notes.get(m)||0)>=.10)this.seen.set(m,now);
+  const count=want.filter(m=>now-(this.seen.get(m)??-Infinity)<140).length;
+  const required=loose&&want.length>=3?Math.ceil(want.length*2/3):want.length;
+  const maxWanted=Math.max(0,...want.map(m=>frame.notes.get(m)||0));
+  const hit=count>=required&&maxWanted>=(want.length===1?.55:.28);
+  this.stable=hit?this.stable+1:0;if(this.stable<2)return false;
+  this.last=now;this.pending=-Infinity;this.stable=0;this.blocked=new Set(frame.notes.keys());this.seen.clear();return true;
  }
 }
 const MIC={active:false,asking:false,token:0,stream:null,ctx:null,raf:0,lastFrame:0,lastUI:0,
@@ -6797,11 +6812,13 @@ const MIC={active:false,asking:false,token:0,stream:null,ctx:null,raf:0,lastFram
    if(token!==this.token){stream.getTracks().forEach(t=>t.stop());if(ctx.state!=='closed')await ctx.close();return}
    stage='activation audio';const resumeError=await resuming;if(resumeError)throw resumeError;
    if(token!==this.token){stream.getTracks().forEach(t=>t.stop());await ctx.close();return}
-   this.stream=stream;this.source=ctx.createMediaStreamSource(stream);this.analyser=ctx.createAnalyser();this.analyser.fftSize=4096;this.analyser.smoothingTimeConstant=0;
+   this.stream=stream;this.source=ctx.createMediaStreamSource(stream);this.analyser=ctx.createAnalyser();this.analyser.fftSize=2048;this.analyser.smoothingTimeConstant=0;
    this.source.connect(this.analyser); // Deliberately NOT connected to speakers.
-   this.db=new Float32Array(this.analyser.frequencyBinCount);this.wave=new Float32Array(1024);
+   this.bassAnalyser=ctx.createAnalyser();this.bassAnalyser.fftSize=4096;this.bassAnalyser.smoothingTimeConstant=0;this.source.connect(this.bassAnalyser);
+   this.bassDb=new Float32Array(this.bassAnalyser.frequencyBinCount);this.bassEngine=new PianoSpectrum(ctx.sampleRate,4096);this.usingBass=null;
+   this.db=new Float32Array(this.analyser.frequencyBinCount);this.wave=new Float32Array(this.analyser.fftSize);
    this.engine=new PianoSpectrum(ctx.sampleRate,this.analyser.fftSize);this.gate=new PianoAttackGate();
-   this.active=true;this.asking=false;this.calUntil=performance.now()+1200;this.noise=[];this.lastFrame=0;this.lastUI=0;
+   this.active=true;this.asking=false;this.calUntil=performance.now()+700;this.noise=[];this.lastFrame=0;this.lastUI=0;
    const start=MZ.ended?MZ.k0:MZ.k;MZ.stopAll();mineAll();OUT.panic();MZ.ended=false;MZ.goto(start,true);this.ui();
    this.say('Étalonnage : garde le silence une seconde.');
    stream.getAudioTracks().forEach(t=>t.addEventListener('ended',()=>{if(this.active)this.stop('Le microphone a été déconnecté.')}));
@@ -6821,7 +6838,7 @@ const MIC={active:false,asking:false,token:0,stream:null,ctx:null,raf:0,lastFram
   if(this.ctx&&this.ctx.state!=='closed')this.ctx.close().catch(()=>{});this.ctx=null;
   this.ui();this.say(message);
  },
- reset(){if(this.gate)this.gate.reset();if(this.engine)this.engine.previous=null},
+ reset(){if(this.gate)this.gate.reset();if(this.engine)this.engine.previous=null;if(this.bassEngine)this.bassEngine.previous=null},
  accept(){
   const k=MZ.k,U=MZ.userNotes(k);if(!U.length)return;
   MZ.waiting=false;MZ.mark(U,'ok');clearHints();
@@ -6830,22 +6847,27 @@ const MIC={active:false,asking:false,token:0,stream:null,ctx:null,raf:0,lastFram
  },
  frame(now){
   if(!this.active)return;this.raf=requestAnimationFrame(t=>this.frame(t));
-  if(now-this.lastFrame<24)return;this.lastFrame=now;
+  if(now-this.lastFrame<15)return;this.lastFrame=now;
   if(this.ctx.state!=='running'){this.say('Micro suspendu : arrête et réactive le micro.');return}
-  this.analyser.getFloatTimeDomainData(this.wave);let rms=0;for(const x of this.wave)rms+=x*x;rms=Math.sqrt(rms/this.wave.length);
+  this.analyser.getFloatTimeDomainData(this.wave);let rms=0;const start=Math.max(0,this.wave.length-512);for(let i=start;i<this.wave.length;i++)rms+=this.wave[i]*this.wave[i];rms=Math.sqrt(rms/(this.wave.length-start));
   $('micLevel').value=Math.min(1,rms*12);
-  if(now<this.calUntil){this.noise.push(rms);return}
-  if(this.noise.length){this.noise.sort((a,b)=>a-b);this.floor=this.noise[Math.floor(this.noise.length*.7)];this.noise=[];this.say('Prêt · joue les notes en bleu.');this.reset()}
+  if(now<this.calUntil){
+   this.noise.push(rms);this.analyser.getFloatFrequencyData(this.db);this.engine.calibrate(this.db);
+   this.bassAnalyser.getFloatFrequencyData(this.bassDb);this.bassEngine.calibrate(this.bassDb);return
+  }
+  if(this.noise.length){this.noise.sort((a,b)=>a-b);this.floor=Math.min(.003,this.noise[Math.floor(this.noise.length*.3)]);this.noise=[];this.say('Prêt · joue les notes en bleu.');this.reset()}
   if(cfg.mode!=='morceau'||PUP.on||MZ.playing||MZ.part||!MZ.waiting||MZ.ended)return;
-  this.analyser.getFloatFrequencyData(this.db);const f=this.engine.analyse(this.db);
   const want=[...new Set(MZ.userNotes(MZ.k).map(j=>MZ.data.notes[j][1]))];
-  const threshold=Math.max(.0015,(this.floor||0)*3)*Math.pow(2,-Number($('micSensitivity').value)/2);
-  if(this.gate.update(now,f,want,rms,threshold,MZ.id+':'+MZ.k))this.accept();
+  const bass=want.some(m=>m<52),analyser=bass?this.bassAnalyser:this.analyser,db=bass?this.bassDb:this.db,engine=bass?this.bassEngine:this.engine;
+  if(bass!==this.usingBass){engine.previous=null;this.usingBass=bass}
+  analyser.getFloatFrequencyData(db);const f=engine.analyse(db);
+  const threshold=Math.max(.00035,(this.floor||0)*1.8)*Math.pow(2,-Number($('micSensitivity').value)/2);
+  if(this.gate.update(now,f,want,rms,threshold,MZ.id+':'+MZ.k,$('micChordMode').value!=='strict'))this.accept();
   else if(now-this.lastUI>650){this.lastUI=now;this.say(rms<threshold?'En attente du piano · joue les notes en bleu.':'Micro actif · notes attendues : '+MZ.userNotes(MZ.k).map(j=>MZ.nameOf(j)).join(' ')+' · mesure '+(MZ.moms[MZ.k].mes+1))}
  }
 };
 $('micPiano').addEventListener('click',()=>MIC.toggle());
-$('micCalibrate').addEventListener('click',()=>{MIC.noise=[];MIC.calUntil=performance.now()+1200;MIC.reset();MIC.say('Étalonnage : garde le silence une seconde.')});
+$('micCalibrate').addEventListener('click',()=>{MIC.noise=[];MIC.engine.noise=null;MIC.bassEngine.noise=null;MIC.calUntil=performance.now()+700;MIC.reset();MIC.say('Étalonnage : garde le silence une seconde.')});
 // Leaving the score or playing the computer's own sound releases the microphone.
 const micPlay=MZ.play;MZ.play=function(...args){if(MIC.active||MIC.asking)MIC.stop('Micro arrêté pendant l’écoute.');return micPlay.apply(this,args)};
 const micFire=MZ.fire;MZ.fire=function(k){if(MIC.active)return;return micFire.call(this,k)};
