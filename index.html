@@ -328,7 +328,7 @@ body:not(.mz) #mzBar{display:none!important}
 <p>Le nom de la note que tu as jouée s'affiche en rouge, avec une phrase qui dit l'écart : combien de crans trop haut ou trop bas, ou la bonne note à la mauvaise octave. Après deux fautes, la bonne touche s'allume en orange sur le clavier.</p>
 <h3>Tes statistiques</h3>
 <p>Tout est enregistré dans ce navigateur, sur cet ordinateur : temps et fautes par note dans les exercices, par mesure dans chaque morceau. L'option « Insister sur mes notes lentes » fait revenir plus souvent tes notes lentes.</p>
-<p class="small" id="version">Version du 25/10/2026, 17 h 22.</p>
+<p class="small" id="version">Version du 25/10/2026, 18 h 08.</p>
 <div class="row" style="margin-top:12px"><span style="flex:1"></span><button id="helpClose" title="Ferme l'aide et revient à ce que tu faisais.">Fermer</button></div>
 </div></div>
 
@@ -1112,7 +1112,8 @@ if(!D.ex){if(Math.abs(dev)>=go){D.nb++;D.v.push(dev);if(D.nb>=2)D.ex={t0:t,v:D.v
 const sd=Math.sign(this.med(D.ex.v)),amp=Math.max(...D.ex.v.filter(v=>Math.sign(v)===sd).map(Math.abs));
 if(Math.abs(dev)>=go&&Math.sign(dev)===sd){D.ex.v.push(dev);return}if(Math.abs(dev)>Math.max(back,amp/3)&&Math.sign(dev)===sd)return;
 D.E[step].push({amp,s:sd,ms:t-D.ex.t0});D.ex=null;D.nb=0;D.v=[];fini=true});
-this.gauge(g0);if(fini){C.tl=t;this.calSay()}
+// la balle part du côté demandé (ta droite, puis ta gauche) : le sens de l'image n'est pas encore connu, il le sera à la fin
+this.gauge(g0===null?null:(step==='R'?1:-1)*Math.abs(g0));if(fini){C.tl=t;this.calSay()}
 // l'étape finit quand un candidat a vu deux mouvements, et que plus aucun n'est en plein mouvement ; ses deux derniers doivent aller du même côté
 const deux=C.cand.some(c=>C.D[c].E[step].length>=2);
 if(!deux||C.cand.some(c=>C.D[c].ex)){if(t-Math.max(C.t0,C.tl||0)>15000*K){C.msg='Je n\'ai pas vu ton mouvement : tourne la tête plus nettement.';C.tl=t;this.calSay()}return}
@@ -1174,7 +1175,7 @@ if(M.step==='calme'){M.nf++;M.ms.push(v.m);M.ys.push(v.y);this.gauge(0);
 if(M.nf>=8&&t-M.t0>=2500*K){M.m0=this.med(M.ms);M.y0=this.med(M.ys);const dm=M.ms.map(x=>Math.abs(x-M.m0)).sort((a,b)=>a-b),dy=M.ys.map(x=>Math.abs(x-M.y0)).sort((a,b)=>a-b);
 M.noise=Math.max(0.004,dm[Math.floor(dm.length*0.9)]);M.ynoise=Math.max(0.02,dy[Math.floor(dy.length*0.9)]);M.step='droite';M.t0=t;M.tl=0;this.mcalSay()}return}
 const yg=Math.max(0.06,3*M.ynoise);if(Math.abs(v.y-M.y0)>yg){M.tete++;this.gauge(null);if(M.tete===8&&!M.ex){M.msg='Ta tête tourne avec la moue : garde-la face à la partition.';this.mcalSay()}return}
-const step=M.step==='droite'?'R':'L',dev=v.m-M.m0,go=Math.max(0.012,4*M.noise),back=Math.max(0.006,2*M.noise);this.gauge(dev/go);
+const step=M.step==='droite'?'R':'L',dev=v.m-M.m0,go=Math.max(0.012,4*M.noise),back=Math.max(0.006,2*M.noise);this.gauge((step==='R'?1:-1)*Math.abs(dev)/go);
 if(!M.ex){if(Math.abs(dev)>=go){M.nb++;M.v.push(dev);if(M.nb>=2)M.ex={t0:t,v:M.v.slice()}}else{M.nb=0;M.v=[]}}
 else{const sd=Math.sign(this.med(M.ex.v)),amp=Math.max(...M.ex.v.filter(x=>Math.sign(x)===sd).map(Math.abs));
 if(Math.abs(dev)>=go&&Math.sign(dev)===sd)M.ex.v.push(dev);else if(!(Math.abs(dev)>Math.max(back,amp/3)&&Math.sign(dev)===sd)){M.E[step].push({amp,s:sd,ms:t-M.ex.t0});M.ex=null;M.nb=0;M.v=[];M.tl=t;this.mcalSay()}}
