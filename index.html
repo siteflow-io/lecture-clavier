@@ -328,7 +328,7 @@ body:not(.mz) #mzBar{display:none!important}
 <p>Le nom de la note que tu as jouée s'affiche en rouge, avec une phrase qui dit l'écart : combien de crans trop haut ou trop bas, ou la bonne note à la mauvaise octave. Après deux fautes, la bonne touche s'allume en orange sur le clavier.</p>
 <h3>Tes statistiques</h3>
 <p>Tout est enregistré dans ce navigateur, sur cet ordinateur : temps et fautes par note dans les exercices, par mesure dans chaque morceau. L'option « Insister sur mes notes lentes » fait revenir plus souvent tes notes lentes.</p>
-<p class="small" id="version">Version du 25/10/2026, 18 h 58.</p>
+<p class="small" id="version">Version du 25/10/2026, 19 h 07.</p>
 <div class="row" style="margin-top:12px"><span style="flex:1"></span><button id="helpClose" title="Ferme l'aide et revient à ce que tu faisais.">Fermer</button></div>
 </div></div>
 
@@ -1134,7 +1134,9 @@ feed(y,t){if(this.cal||this.mcal)return;const C=this.calG();if(!C)return;const K
 // seules deux images vues à plus d'une seconde d'écart ne comptent pas comme « de suite » (21/10 : sinon un geste suivant partait d'une heure ancienne)
 if(y===null){if(this.state==='neutre'){this.tGo=0;this.pkMid=0;if(this.beyond&&t-this.tF>1000*K)this.beyond=0}this.gauge(null);return}
 if(!this.seen){this.seen=true;if(this.tLost){JRN.add('tête',{quoi:'visage retrouvé',apres:Math.round((t-this.tLost)/K)});this.tLost=0}this.ui()}this.hist.push(y);if(this.hist.length>3)this.hist.shift();const ys=this.med(this.hist);if(this.base===null)this.base=ys;
-const d=(ys-this.base)*C.s,u=d>=0?d/C.tR:d/C.tL;this.ymin=Math.min(this.ymin,d);this.ymax=Math.max(this.ymax,d);this.su+=u;this.nu++;
+// le même seuil des deux côtés : celui du côté le plus petit à l'étalonnage (25/10, journal de Paul : l'étalonnage avait mesuré sa gauche 36 % plus grande
+// que sa droite, le seuil de gauche était plus loin d'autant, et ses gestes vers la gauche s'arrêtaient à 80-97 % du seuil)
+const d=(ys-this.base)*C.s,u=d/Math.min(C.tR,C.tL);this.ymin=Math.min(this.ymin,d);this.ymax=Math.max(this.ymax,d);this.su+=u;this.nu++;
 if(this.state==='neutre'){if(Math.abs(u)>=0.5){if(!this.tGo)this.tGo=t;if(Math.abs(u)<1&&Math.abs(u)>this.pkMid){this.pkMid=Math.abs(u);this.pkDir=Math.sign(u)}}
 if(Math.abs(u)<0.5){if(this.pkMid>=0.75)JRN.add('tête',{quoi:'geste trop petit : ignoré',vers:this.pkDir>0?'droite':'gauche',jusqua:Math.round(100*this.pkMid)+' % du seuil'});this.pkMid=0;this.tGo=0;this.base+=0.08*(ys-this.base);this.beyond=0;this.tMid=0}
 else if(Math.abs(u)>=1){const sg=Math.sign(u);if(this.beyond&&sg===this.bsign)this.beyond++;else{this.beyond=1;this.bsign=sg;this.tF=t}if(this.beyond>=2){this.state='tourne';this.t0=this.tF;this.dir=sg;this.peak=Math.abs(d);this.pu=Math.abs(u);this.nEx=2;this.pkMid=0}}
