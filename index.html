@@ -99,6 +99,9 @@ button.step{padding:3px 7px;font-size:12px}
 #pupTete.cherche .dot{background:#E8A33C}#pupTete.vu .dot{background:#2E9D6B}
 #pupCam{position:absolute;right:6px;width:min(92vw,380px);background:#ffffff;color:#1f1e1c;border:1px solid #c9c7bf;border-radius:10px;padding:10px 12px;box-shadow:0 3px 14px rgba(0,0,0,.18);font-size:14px;line-height:1.35;z-index:3;cursor:default;will-change:transform;contain:layout paint}
 #pupCam .pcT{font-weight:600;margin-bottom:4px}#pupCam #pcSt{min-height:2.7em;color:#3d3c38}
+#pcApW{display:flex;gap:10px;align-items:center;margin:4px 0 6px}
+#pcAp{width:104px;height:auto;flex:none;border-radius:6px;background:#ecebe5}
+#pcApTx{font-size:13px;color:#3d3c38}
 #pcG{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px;color:#6b6a65}#pcBar{position:relative;flex:1;height:18px;border-radius:9px;background:#ecebe5}
 #pcBar i{position:absolute;top:2px;bottom:2px;width:2px;margin-left:-1px;background:#9a988f}#pcDot{position:absolute;top:3px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#185FA5;opacity:.25}#pcDot.loin{background:#D85A30}
 #pupCam .pcR{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}#pupCam button{padding:4px 9px;font-size:13px;background:#ffffff;color:#1f1e1c;border:1px solid #c9c7bf;border-radius:8px;cursor:pointer}#pupCam button[aria-pressed="true"]{background:#E6F1FB;border-color:#85B7EB;color:#0C447C}
@@ -328,7 +331,7 @@ body:not(.mz) #mzBar{display:none!important}
 <p>Le nom de la note que tu as jouée s'affiche en rouge, avec une phrase qui dit l'écart : combien de crans trop haut ou trop bas, ou la bonne note à la mauvaise octave. Après deux fautes, la bonne touche s'allume en orange sur le clavier.</p>
 <h3>Tes statistiques</h3>
 <p>Tout est enregistré dans ce navigateur, sur cet ordinateur : temps et fautes par note dans les exercices, par mesure dans chaque morceau. L'option « Insister sur mes notes lentes » fait revenir plus souvent tes notes lentes.</p>
-<p class="small" id="version">Version du 25/10/2026, 19 h 07.</p>
+<p class="small" id="version">Version du 25/10/2026, 19 h 13.</p>
 <div class="row" style="margin-top:12px"><span style="flex:1"></span><button id="helpClose" title="Ferme l'aide et revient à ce que tu faisais.">Fermer</button></div>
 </div></div>
 
@@ -349,6 +352,7 @@ body:not(.mz) #mzBar{display:none!important}
 <div id="pupBar"><span id="pupReg" hidden></span><button id="pupFs" hidden title="Remet la partition en plein écran. Chrome en sort quand il te demande la permission d'utiliser la caméra.">Plein écran</button><button id="pupTete" title="Tourner la page avec la tête : tourne la tête vers ta droite et reviens (avancer) ; vers ta gauche (revenir). La page tourne dès que ta tête commence à revenir. La première fois, la page t'étalonne en une vingtaine de secondes. La caméra de l'ordinateur regarde ton visage ; l'image reste dans l'ordinateur, rien n'est enregistré ni envoyé. Ouvre aussi son réglage, où tu peux choisir de tourner avec la moue plutôt qu’avec la tête."><span class="dot"></span><span id="pupTeteNom">Tête</span></button><button id="pupMain" title="Quelle main voir en clair : les deux mains, la main droite, ou la main gauche. Les notes de l'autre main (et de la pédale) pâlissent, avec leurs doigtés et leurs noms ; le reste de la partition ne change pas. Gardé pour ce morceau.">2 mains</button><span id="pupPg" title="La page où tu es, et combien le morceau en a à la taille de ton écran.">1 / 1</span><button id="pupDebut" title="Revient au début du morceau.">Début</button><button id="pupExit" aria-label="Quitter le pupitre" title="Quitte le pupitre et revient à l'écran habituel, au même endroit. La touche Échap fait la même chose.">✕</button></div>
 <div id="pupCam" hidden>
 <div class="pcT" id="pcT">Tourner la page avec la tête</div>
+<div id="pcApW" title="Ce que voit la caméra, en miroir (comme dans une glace). Cadre vert : la page voit bien ton visage. Cadre orange : ton visage touche un bord de l'image, recentre-toi ou bouge le téléphone. Pas de cadre : la page ne voit pas ton visage. L'image reste dans l'appareil : rien n'est enregistré ni envoyé."><canvas id="pcAp" width="104" height="138"></canvas><span id="pcApTx">Je cherche ton visage…</span></div>
 <div id="pcSt"></div>
 <div id="pcG" title="Le point montre où est ta tête (ou ta bouche, avec la moue) : à droite quand tu vas vers ta droite. Pour tourner la page, il doit dépasser un des deux traits, puis revenir vers le milieu : la page tourne dès qu’il commence à revenir."><span>◀ revenir</span><div id="pcBar"><i style="left:25%"></i><i style="left:75%"></i><b id="pcDot"></b></div><span>avancer ▶</span></div>
 <div class="pcR"><label class="lab">Tourner avec <select id="pcGeste" title="La tête : tourne la tête vers ta droite et reviens (avancer), vers ta gauche (revenir). La moue : pousse la bouche vers ta droite, puis relâche (avancer), vers ta gauche (revenir), sans tourner la tête ; tu peux alors tourner la tête pour regarder les jeux sans que la page tourne. La moue a son propre étalonnage, d’une vingtaine de secondes, après celui de la tête ; il dit si ta moue se voit assez à la caméra, sinon la page garde la tête."><option value="tete">la tête</option><option value="moue">la moue</option></select></label></div>
@@ -1057,7 +1061,7 @@ calStart(){this.rot=null;this.rotSc=null;this.rotN=0;this.box=null;this.cal={ste
 // écran tourné pendant que la caméra marche : l'étalonnage de l'autre sens
 reorient(){if(this.on&&this.lib&&this.k0!==this.key()){if(this.essai)this.essaiStop(false);this.k0=this.key();this.prepare()}},
 release(){try{if(this.stream)this.stream.getTracks().forEach(t=>t.stop())}catch(e){}this.stream=null;if(this.video)this.video.srcObject=null},
-stop(user){if(this.essai)this.essaiStop(false);if(this.mcal){this.mcal=null;PUP.say('',0)}this.gen++;clearTimeout(this.tm);this.tm=null;this.busy=false;const was=this.on;this.on=false;this.release();if(this.cal){this.cal=null;PUP.say('',0)}if(user){this.opt().on=false;save()}this.seen=false;this.status='Caméra éteinte.';this.ui();if(was)JRN.add('tête',{quoi:'caméra éteinte'})},
+stop(user){if(this.essai)this.essaiStop(false);if(this.mcal){this.mcal=null;PUP.say('',0)}this.gen++;clearTimeout(this.tm);this.tm=null;this.busy=false;const was=this.on;this.on=false;this.release();if(this.cal){this.cal=null;PUP.say('',0)}if(this.cadreMsg){this.cadreMsg=false;PUP.say('',0)}if(user){this.opt().on=false;save()}this.seen=false;this.status='Caméra éteinte.';this.ui();if(was)JRN.add('tête',{quoi:'caméra éteinte'})},
 async load(){if(this.lib)return;
 if(!window.faceapi){const u=URL.createObjectURL(new Blob([await donnee('faceLib')],{type:'text/javascript'}));await new Promise((res,rej)=>{const s=document.createElement('script');s.src=u;s.onload=res;s.onerror=()=>rej(new Error('bibliothèque'));document.head.appendChild(s)})}
 const F=window.faceapi;if(!F)throw new Error('bibliothèque');try{await F.tf.setBackend('webgl')}catch(e){}await F.tf.ready();
@@ -1077,6 +1081,13 @@ if(box){const m=Math.max(box.w,box.h)*1.9,cx=box.x+box.w/2,cy=box.y+box.h/2,x0=M
 if(x1-x0>40&&y1-y0>40){const c2=this.cv2||(this.cv2=document.createElement('canvas'));sc=Math.min(1.5,224/Math.max(x1-x0,y1-y0));c2.width=Math.round((x1-x0)*sc);c2.height=Math.round((y1-y0)*sc);c2.getContext('2d').drawImage(c,x0,y0,x1-x0,y1-y0,0,0,c2.width,c2.height);src=c2;ox=x0;oy=y0;isz=224}}
 const d=await F.detectSingleFace(src,new F.TinyFaceDetectorOptions({inputSize:isz,scoreThreshold:0.4})).withFaceLandmarks(true);if(!d||!d.landmarks)return null;
 const b=d.detection.box;return{score:d.detection.score,p:d.landmarks.positions,src,box:{x:ox+b.x/sc,y:oy+b.y/sc,w:b.width/sc,h:b.height/sc}}},
+// l'image de la caméra dans son réglage, en miroir, avec un cadre autour du visage : vert, il est vu ; orange, il touche un bord de l'image (25/10 :
+// « je ne sais même pas si je suis dans le cadre de la caméra »). Dessinée seulement quand le réglage est ouvert.
+apercu(d,r){const P=$('pupCam'),v=this.video;if(!P||P.hidden||!v||!v.videoWidth)return;const c=$('pcAp'),w=v.videoWidth,h=v.videoHeight,sw=r%180?h:w,sh=r%180?w:h,pw=104,ph=Math.round(pw*sh/sw);if(c.width!==pw||c.height!==ph){c.width=pw;c.height=ph}
+const x=c.getContext('2d'),s=pw/sw;x.save();x.translate(pw,0);x.scale(-1,1);x.translate(pw/2,ph/2);x.rotate(r*Math.PI/180);x.drawImage(v,-w*s/2,-h*s/2,w*s,h*s);x.restore();let tx;
+if(d&&d.box){const k=Math.min(1,480/Math.max(sw,sh)),cw=sw*k,ch=sh*k,b=d.box,m=0.03,bord=b.x<m*cw||b.y<m*ch||b.x+b.w>(1-m)*cw||b.y+b.h>(1-m)*ch,f=pw/cw;
+x.lineWidth=2;x.strokeStyle=bord?'#E8A33C':'#2E9D6B';x.strokeRect(pw-(b.x+b.w)*f,b.y*f,b.w*f,b.h*f);tx=bord?'Ton visage touche le bord de l\'image : recentre-toi, ou bouge le téléphone.':'Ton visage est bien dans l\'image.'}
+else tx='Je ne vois pas ton visage dans l\'image.';const e=$('pcApTx');if(e.textContent!==tx)e.textContent=tx},
 yawOf(p){const wj=p[16].x-p[0].x;return wj>4?(p[30].x-p[0].x)/wj-0.5:null},
 async frame(g){const now=performance.now(),C=this.cal;
 // étalonnage, 1 : le sens de l'image, sur trois images, d'après le meilleur score moyen des quatre sens. Le détecteur reconnaît aussi un visage
@@ -1086,12 +1097,12 @@ if(this.rotN>=3){let best=null,bs=0;for(const r in S){const m=S[r].reduce((a,b)=
 if(bs>=0.45){C.cand=[best,(best+180)%360];C.D={};C.cand.forEach(c=>{C.D[c]={ys:[],nb:0,v:[],ex:null,E:{R:[],L:[]},R:null,L:null}});C.step='calme';C.t0=now;C.nf=0;this.seen=true;JRN.add('tête',{quoi:'sens de l\'image : deux candidats',sens:C.cand,score:+bs.toFixed(2)});this.calSay()}
 else{this.seen=false;this.status='Je ne vois pas ton visage : mets-toi face à l\'écran, la partition devant toi.';PUP.say(this.status,0);this.ui()}}
 this.stats(now);return}
-if(C){const Y={};for(const c of C.cand){const d=await this.detect(c,null);if(g!==this.gen)return;Y[c]=d?this.yawOf(d.p):null}this.n++;if(C.cand.some(c=>Y[c]!==null))this.nv++;this.calFeed(Y,now);this.stats(now);return}
-const d=await this.detect(this.rot,this.box);if(g!==this.gen)return;this.n++;
+if(C){const Y={};for(const c of C.cand){const d=await this.detect(c,null);if(g!==this.gen)return;Y[c]=d?this.yawOf(d.p):null;if(c===C.cand[0])this.apercu(d,c)}this.n++;if(C.cand.some(c=>Y[c]!==null))this.nv++;this.calFeed(Y,now);this.stats(now);return}
+const d=await this.detect(this.rot,this.box);if(g!==this.gen)return;this.n++;this.apercu(d,this.rot);
 if(this.essai){if(d){this.box=d.box;this.miss=0;this.nv++}else{this.box=null;this.miss++}this.essaiFeed(d,now);this.stats(now);return}
 if(this.mcal){if(d){this.box=d.box;this.miss=0;this.nv++}else{this.box=null;this.miss++}this.mcalFeed(d?this.mouv(d):null,now);this.stats(now);return}
 if(d){const y=this.yawOf(d.p);this.box=d.box;this.miss=0;if(y!==null){this.nv++;if(this.geste()==='moue'){if(!this.mcalOf()){this.mcalStart();this.stats(now);return}this.feed(this.moueVal(d),now)}else this.feed(y,now)}else this.feed(null,now)}
-else{this.box=null;this.miss++;if(this.miss===6&&this.seen){this.seen=false;this.tLost=now;JRN.add('tête',{quoi:'visage perdu'});this.ui()}this.feed(null,now)}this.stats(now)},
+else{this.box=null;this.miss++;if(this.miss===6&&this.seen){this.seen=false;this.tLost=now;JRN.add('tête',{quoi:'visage perdu'});if(PUP.on&&!this.cal&&!this.mcal&&!this.essai){PUP.say('Tu sors du cadre de la caméra : reviens face à l\'écran.',0);this.cadreMsg=true}this.ui()}this.feed(null,now)}this.stats(now)},
 // toutes les 20 s : images par seconde, visage vu, écart de la tête (pour régler à partir de ton journal)
 stats(t){if(t-this.tS<20000)return;const s=(t-this.tS)/1000,C=this.calOf();JRN.add('tête',{quoi:'bilan',imagesParSeconde:+(this.n/s).toFixed(1),visageVu:Math.round(100*this.nv/Math.max(1,this.n))+' %',ecart:[+this.ymin.toFixed(2),+this.ymax.toFixed(2)],
 posture:this.nu?+(this.su/this.nu).toFixed(2):null,derive:C&&this.base!==null?+((this.base-C.m0)*C.s).toFixed(3):null,secteur:this.bat?this.bat.charging:null,batterie:this.bat?Math.round(this.bat.level*100)+' %':null});this.n=this.nv=0;this.ymin=this.ymax=0;this.su=this.nu=0;this.tS=t},
@@ -1133,7 +1144,7 @@ feed(y,t){if(this.cal||this.mcal)return;const C=this.calG();if(!C)return;const K
 // visage pas vu sur cette image : on garde où en est le geste (une tête gardée tournée qui sort de l'image reste « gardée tournée ») ;
 // seules deux images vues à plus d'une seconde d'écart ne comptent pas comme « de suite » (21/10 : sinon un geste suivant partait d'une heure ancienne)
 if(y===null){if(this.state==='neutre'){this.tGo=0;this.pkMid=0;if(this.beyond&&t-this.tF>1000*K)this.beyond=0}this.gauge(null);return}
-if(!this.seen){this.seen=true;if(this.tLost){JRN.add('tête',{quoi:'visage retrouvé',apres:Math.round((t-this.tLost)/K)});this.tLost=0}this.ui()}this.hist.push(y);if(this.hist.length>3)this.hist.shift();const ys=this.med(this.hist);if(this.base===null)this.base=ys;
+if(!this.seen){this.seen=true;if(this.cadreMsg){this.cadreMsg=false;PUP.say('',0)}if(this.tLost){JRN.add('tête',{quoi:'visage retrouvé',apres:Math.round((t-this.tLost)/K)});this.tLost=0}this.ui()}this.hist.push(y);if(this.hist.length>3)this.hist.shift();const ys=this.med(this.hist);if(this.base===null)this.base=ys;
 // le même seuil des deux côtés : celui du côté le plus petit à l'étalonnage (25/10, journal de Paul : l'étalonnage avait mesuré sa gauche 36 % plus grande
 // que sa droite, le seuil de gauche était plus loin d'autant, et ses gestes vers la gauche s'arrêtaient à 80-97 % du seuil)
 const d=(ys-this.base)*C.s,u=d/Math.min(C.tR,C.tL);this.ymin=Math.min(this.ymin,d);this.ymax=Math.max(this.ymax,d);this.su+=u;this.nu++;
