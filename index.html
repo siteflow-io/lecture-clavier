@@ -342,7 +342,7 @@ body:not(.mz) #mzBar{display:none!important}
 <p>Le nom de la note que tu as jouée s'affiche en rouge, avec une phrase qui dit l'écart : combien de crans trop haut ou trop bas, ou la bonne note à la mauvaise octave. Après deux fautes, la bonne touche s'allume en orange sur le clavier.</p>
 <h3>Tes statistiques</h3>
 <p>Tout est enregistré dans ce navigateur, sur cet ordinateur : temps et fautes par note dans les exercices, par mesure dans chaque morceau. L'option « Insister sur mes notes lentes » fait revenir plus souvent tes notes lentes.</p>
-<p class="small" id="version">Version du 26/10/2026, 9 h 32.</p>
+<p class="small" id="version">Version du 26/10/2026, 9 h 57.</p>
 <div class="row" style="margin-top:12px"><span style="flex:1"></span><button id="helpClose" title="Ferme l'aide et revient à ce que tu faisais.">Fermer</button></div>
 </div></div>
 
@@ -1736,7 +1736,8 @@ $('mzPedal').addEventListener('click',()=>{cfg.pedalPlay=!cfg.pedalPlay;save();s
 window.addEventListener('blur',repStop);
 $('mzLearn').addEventListener('click',()=>{cfg.learn=!cfg.learn;save();syncUI()});
 $('mzNoms').addEventListener('click',()=>{cfg.noms=!cfg.noms;save();syncUI()});
-$('mzSet').addEventListener('click',()=>{const vis=cfg.mzSet&&!(MZ.part&&MZ.part.fold);if(vis)cfg.mzSet=false;else{cfg.mzSet=true;if(MZ.part)MZ.part.fold=false}save();syncUI()});
+// Réglages : seulement ouvrir ou fermer le panneau, tout de suite ; la mémoire s'écrit juste après l'affichage (pas de lenteur au clic)
+$('mzSet').addEventListener('click',()=>{const vis=cfg.mzSet&&!(MZ.part&&MZ.part.fold);if(vis)cfg.mzSet=false;else{cfg.mzSet=true;if(MZ.part)MZ.part.fold=false}const sv=cfg.mode==='morceau'&&cfg.mzSet&&!(MZ.part&&MZ.part.fold);$('mzSet').setAttribute('aria-pressed',sv?'true':'false');$('mzRow').hidden=!sv;setTimeout(save,0)});
 $('mzRep').addEventListener('click',()=>MZ.partStart());$('mzJrn').addEventListener('click',()=>JRN.exporter());$('mzRepEnd').addEventListener('click',()=>MZ.partEnd(true));$('mzRepClear').addEventListener('click',()=>MZ.partClear());
 $('mzMains').addEventListener('change',e=>{if(!MZ.st)return;MZ.st.mainsSrc=e.target.value;MZ.saveSt();MZ.decorate();MZ.noms();MZ.restart()});
 $('mzPup').addEventListener('click',()=>PUP.enter());
@@ -1787,7 +1788,9 @@ window.addEventListener('storage',e=>{if(e.key===LS){const before=JSON.stringify
 else if(e.key&&e.key.indexOf(LSM)===0&&MZ.id&&e.key===LSM+MZ.id&&!MZ.waiting){MZ.st=MZ.settings();MZ.renderControls();renderWeak();MZ.decorate();MZ.noms()}
 else if(MZ.id&&e.key===LSM+MZ.id+'.mains'&&!MZ.part){MZ.loadMains();MZ.decorate();MZ.noms()}});
 if(BC)BC.onmessage=e=>{if(e.data==='morceaux')MZ.refreshList()};
-if(window.ResizeObserver){new ResizeObserver(()=>{if(cfg.mode!=='morceau'||!MZ.svg)return;const sens=()=>{const q=MZ.list.find(x=>x.id===MZ.id);return innerHeight>innerWidth&&!!(q&&(q.svgP||q.aP))};if(sens()!==MZ.port&&!MZ.playing){clearTimeout(MZ.rtm);MZ.rtm=setTimeout(()=>{if(cfg.mode==='morceau'&&MZ.svg&&sens()!==MZ.port&&!MZ.playing){MZ.garde=MZ.k;MZ.open(MZ.id)}},350)}MZ.paginate()}).observe($('scoreSvg'));new ResizeObserver(()=>MZ.dots()).observe(KB)}}
+if(window.ResizeObserver){new ResizeObserver(()=>{if(cfg.mode!=='morceau'||!MZ.svg)return;const sens=()=>{const q=MZ.list.find(x=>x.id===MZ.id);return innerHeight>innerWidth&&!!(q&&(q.svgP||q.aP))};if(sens()!==MZ.port&&!MZ.playing){clearTimeout(MZ.rtm);MZ.rtm=setTimeout(()=>{if(cfg.mode==='morceau'&&MZ.svg&&sens()!==MZ.port&&!MZ.playing){MZ.garde=MZ.k;MZ.open(MZ.id)}},350)}
+// la mise en page suit la taille, une fois par image et après l'affichage : un panneau qui s'ouvre apparaît sans attendre
+if(!MZ.pagRaf)MZ.pagRaf=requestAnimationFrame(()=>{MZ.pagRaf=0;if(cfg.mode==='morceau'&&MZ.svg)MZ.paginate()})}).observe($('scoreSvg'));new ResizeObserver(()=>MZ.dots()).observe(KB)}}
 
 let MA=null;
 const REP={t:null,n:0,dir:1,t0:0};
