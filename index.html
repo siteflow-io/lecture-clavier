@@ -176,10 +176,11 @@ body:not(.mz) #mzBar{display:none!important}
 
 
 <div class="row" id="micRow" hidden style="padding:3px 0">
-<button id="micPiano" aria-pressed="false" title="Suivi de l’orgue ou du piano par le micro. En mode Morceau, la barre attend les notes des parties réglées sur moi. Allume-le avant de jouer : il écoute d’abord 3 secondes le fond de la salle. Aucun envoi audio. Le son n’est enregistré que pendant un test volontaire.">Micro</button>
+<button id="micPiano" aria-pressed="false" title="Suivi de l’orgue ou du piano par le micro. En mode Morceau, la barre attend les notes des parties réglées sur moi. Allume-le avant de jouer : il écoute d’abord le fond de la salle (3 secondes en écoute « Orgue », 1 seconde en écoute « Piano »). Aucun envoi audio. Le son n’est enregistré que pendant un test volontaire.">Micro</button>
+<button id="micInstr" data-v="orgue" title="Ce que le micro écoute. « Orgue » : l’écoute faite pour la tribune (sons tenus, soufflerie, écho de l’église). « Piano » : l’écoute d’avant (24/10), faite pour un piano (notes frappées qui s’éteignent). Clique pour passer de l’un à l’autre ; si le micro est allumé, il redémarre et réécoute le silence. Le choix est gardé.">Orgue</button>
 <span id="micControls" hidden><label class="lab">Niveau <meter id="micLevel" min="0" max="1" value="0" aria-label="Niveau du microphone"></meter></label>
 <label class="lab">Sensibilité <input id="micSensitivity" type="range" min="-2" max="2" value="0" step="1" title="Vers la droite : le micro entend les notes plus faibles. Vers la gauche : il ignore mieux les bruits. Au milieu pour commencer."></label>
-<label class="lab">Accords <select id="micChordMode" title="Souples : un accord passe quand le micro a entendu les trois cinquièmes de ses noms de notes (dans do-mi-sol, le sol se cache souvent dans le do). Complets : toutes ses notes. Le micro ne compte pas les fautes."><option value="loose">souples</option><option value="strict">complets</option></select></label>
+<label class="lab">Accords <select id="micChordMode" title="Souples : un accord passe quand le micro a entendu la plupart de ses noms de notes (trois sur cinq en écoute « Orgue », deux sur trois en écoute « Piano ») (dans do-mi-sol, le sol se cache souvent dans le do). Complets : toutes ses notes. Le micro ne compte pas les fautes."><option value="loose">souples</option><option value="strict">complets</option></select></label>
 <label class="lab"><input id="micHeadphones" type="checkbox" checked> Accompagnement au casque</label>
 </span>
 <span id="micStatus" class="small" role="status" aria-live="polite">La page suit ton jeu au micro</span>
@@ -326,7 +327,7 @@ body:not(.mz) #mzBar{display:none!important}
 <p><b>Accords</b> : trois notes qui sont empilées, toutes sur des lignes ou toutes dans des espaces. Joue-les ensemble. À la souris, chaque clic enfonce ou relâche une touche.</p>
 <p><b>Exercices</b> : les exercices d'orgue gravés, dans l'ordre de la méthode de Dupré. Au-dessus de la partition, une phrase dit le geste à faire ; dans la partition, il est marqué à l'endroit exact. Ils se jouent comme un morceau (voir plus bas). Le bouton <b>Lecture partition</b> ramène à tes morceaux.</p></div>
 <h3>Le morceau</h3>
-<p><b>Tempo et métronome.</b> Le tempo est indiqué en BPM, une pulsation par noire. Il règle aussi l’écoute et l’accompagnement de la page, même quand le métronome est arrêté. Un ding de clochette marque le premier temps de chaque mesure ; les autres temps gardent leur clic. « Temps/mesure » règle le nombre de pulsations entre deux accents (2 pour Gigout). Chaque démarrage commence sur le temps fort. « Démarrer le métronome » active un clic régulier ; « Arrêter » coupe seulement le clic. L’ancien pourcentage est converti en BPM à l’ouverture du morceau. Le métronome donne la pulsation, sans déplacer la barre ni déclencher les notes de la page à ta place. Utilise de préférence un casque pendant le suivi micro.</p><p><b>Micro.</b> En mode Morceau, règle les parties jouées sur « moi », place la barre au départ, puis clique sur « Micro » <i>avant</i> de jouer : la page écoute d’abord 3 secondes le fond de la salle (la soufflerie, le bruit, les voix) ; tout ce qui n’est pas nettement plus fort ne compte pas. Quand elle dit « Prêt », joue les notes en bleu. Elle apprend toute seule le diapason de l’instrument (l’orgue de Saint-Pierre est 24 cents plus haut que le piano) et l’affiche. À chaque attaque, elle cherche dans le son ce qui est nouveau ; une note qui sonne encore dans l’écho de l’église ne la fait pas avancer. Elle reconnaît la note attendue 0,03 s après ton attaque pour lancer l’accompagnement ; la barre avance quand l’analyse a confirmé. Un accord passe en « souples » quand elle a entendu les trois cinquièmes de ses noms de notes ; en « complets », toutes ses notes. Les fautes ne sont pas comptées. La sensibilité : vers la droite, elle entend les notes plus faibles ; vers la gauche, elle ignore mieux les bruits. Le traitement reste sur cet appareil : rien n’est envoyé, rien n’est enregistré, sauf pendant le test volontaire de 45 s (dans Réglages), qui garde le son ici pour que tu puisses me l’envoyer.</p>
+<p><b>Tempo et métronome.</b> Le tempo est indiqué en BPM, une pulsation par noire. Il règle aussi l’écoute et l’accompagnement de la page, même quand le métronome est arrêté. Un ding de clochette marque le premier temps de chaque mesure ; les autres temps gardent leur clic. « Temps/mesure » règle le nombre de pulsations entre deux accents (2 pour Gigout). Chaque démarrage commence sur le temps fort. « Démarrer le métronome » active un clic régulier ; « Arrêter » coupe seulement le clic. L’ancien pourcentage est converti en BPM à l’ouverture du morceau. Le métronome donne la pulsation, sans déplacer la barre ni déclencher les notes de la page à ta place. Utilise de préférence un casque pendant le suivi micro.</p><p><b>Micro.</b> En mode Morceau, règle les parties jouées sur « moi », place la barre au départ, puis clique sur « Micro » <i>avant</i> de jouer : la page écoute d’abord 3 secondes le fond de la salle (la soufflerie, le bruit, les voix) ; tout ce qui n’est pas nettement plus fort ne compte pas. Quand elle dit « Prêt », joue les notes en bleu. Elle apprend toute seule le diapason de l’instrument (l’orgue de Saint-Pierre est 24 cents plus haut que le piano) et l’affiche. À chaque attaque, elle cherche dans le son ce qui est nouveau ; une note qui sonne encore dans l’écho de l’église ne la fait pas avancer. Elle reconnaît la note attendue 0,03 s après ton attaque pour lancer l’accompagnement ; la barre avance quand l’analyse a confirmé. Un accord passe en « souples » quand elle a entendu les trois cinquièmes de ses noms de notes ; en « complets », toutes ses notes. Les fautes ne sont pas comptées. La sensibilité : vers la droite, elle entend les notes plus faibles ; vers la gauche, elle ignore mieux les bruits. Le traitement reste sur cet appareil : rien n’est envoyé, rien n’est enregistré, sauf pendant le test volontaire de 45 s (dans Réglages), qui garde le son ici pour que tu puisses me l’envoyer.</p><p><b>Orgue / Piano.</b> Le bouton à côté de « Micro » choisit l’écoute. « Orgue » : celle décrite ci-dessus, faite pour la tribune. « Piano » : pour un piano acoustique, l’écoute du 24/10, qui guette l’attaque de chaque note frappée. Elle écoute 1 seconde le silence au départ (ne joue pas pendant ce temps), elle n’apprend pas le diapason et ne rattrape pas les notes passées : elle avance d’un moment à chaque attaque reconnue. La main jouée par la page part quand ta note est confirmée, un dixième de seconde environ après ton attaque. Le choix est gardé.</p>
 <p>Avec « Accompagnement au casque » coché, les notes de la page qui vont avec ta note partent dès qu’elle est reconnue (0,03 s), sans attendre la barre ; ses notes suivantes suivent le tempo réglé. Pour qu’elles tombent avec les tiennes, écoute-les au casque à fil ou aux haut-parleurs : des écouteurs Bluetooth ajoutent 0,15 à 0,3 s de retard, quoi que fasse la page. « Écouter », changer de morceau ou de mode, et ouvrir le pupitre arrêtent le micro. Le micro marche dans Chrome ou Edge, avec le fichier ouvert directement.</p>
 <p>La vraie partition s'affiche page par page. La note ou l'accord à jouer est en bleu, avec une bande bleue derrière. La page attend que tu le joues, puis passe à la suite ; les notes que tu as jouées deviennent vertes, ou rouges s'il y a eu une faute. Quand tu arrives au bout d'une page, la suivante s'affiche toute seule.</p>
 <p>« Son », dans Réglages, choisit d'où vient le son de ce que joue la page. « piano » : la page envoie les notes à ton piano par le câble, et lui demande le son d'orgue dont le numéro s'affiche à côté (« Orgue n° ») ; tes propres notes sonnent alors aussi à l'orgue. Le numéro de l'orgue à tuyaux change d'un modèle de piano à l'autre : si tu entends un autre son, clique sur ◀ ou ▶ à côté du numéro, le piano joue aussitôt un accord avec le nouveau son ; la page garde le numéro que tu as choisi. Elle redemande ce son au piano à chaque fois que tu cliques sur Écouter. « ordinateur » : un orgue d'église joué par l'ordinateur, avec les jeux tirés dans « Jeux » (au départ, les fonds : Montre 8, Prestant 4, Doublette 2 au Grand-Orgue ; Soubasse 16, Flûtes 8 et 4 à la pédale). Ce que tu joues au piano sonne alors aussi par l'ordinateur, avec le même orgue : baisse le volume du piano pour n'entendre que l'ordinateur.</p>
@@ -354,7 +355,7 @@ body:not(.mz) #mzBar{display:none!important}
 <p>Le nom de la note que tu as jouée s'affiche en rouge, avec une phrase qui dit l'écart : combien de crans trop haut ou trop bas, ou la bonne note à la mauvaise octave. Après deux fautes, la bonne touche s'allume en orange sur le clavier.</p>
 <h3>Tes statistiques</h3>
 <p>Tout est enregistré dans ce navigateur, sur cet ordinateur : temps et fautes par note dans les exercices, par mesure dans chaque morceau. L'option « Insister sur mes notes lentes » fait revenir plus souvent tes notes lentes.</p>
-<p class="small" id="version">Version du 26/10/2026, 12 h 27.</p>
+<p class="small" id="version">Version du 26/10/2026, 13 h 26.</p>
 <div class="row" style="margin-top:12px"><span style="flex:1"></span><button id="helpClose" title="Ferme l'aide et revient à ce que tu faisais.">Fermer</button></div>
 </div></div>
 
@@ -1824,7 +1825,7 @@ function syncUI(){document.querySelectorAll('[data-mode]').forEach(b=>b.setAttri
 document.querySelectorAll('[data-z]').forEach(b=>b.setAttribute('aria-pressed',!!cfg.zones[b.getAttribute('data-z')]));
 $('acc').setAttribute('aria-pressed',!!cfg.acc);$('insist').setAttribute('aria-pressed',!!cfg.insist);
 $('carte').value=cfg.carte;$('carteWrap').style.display=cfg.mode==='defile'?'':'none';
-const mz=cfg.mode==='morceau';document.body.classList.toggle('mz',mz);{const c=$('mzConsigne');c.hidden=!(mz&&MZ.data&&MZ.data.consigne)}$('mzRestart').hidden=!mz;$('mzPlay').hidden=!mz;$('mzPedal').hidden=!mz;$('mzSonWrap').hidden=!mz;['mzPrev','mzNext','mzLearn','mzNoms','mzSet','mzPdf','mzPup','mzJeux','pageInfo','micRow'].forEach(id=>{$(id).hidden=!mz});{if(!mz&&ANN.on){ANN.on=false;ANN.stop();ANN.avant=null}const a=$('mzAnn');a.hidden=!mz;a.setAttribute('aria-pressed',ANN.on?'true':'false');$('mzAnnUndo').hidden=!(mz&&ANN.on&&ANN.peutAnnuler());const v=$('mzAnnVis');v.hidden=!(mz&&ANN.list().length>0);v.setAttribute('aria-pressed',cfg.annVis!==false?'true':'false');document.documentElement.classList.toggle('annots-cachees',cfg.annVis===false);document.documentElement.classList.toggle('annoter',ANN.on)}$('mzPdf').setAttribute('aria-pressed',mz&&cfg.pdfRow?'true':'false');$('pdfRow').hidden=!(mz&&cfg.pdfRow);$('pdfAng').checked=cfg.pdfAng!==false;$('mzRepEnd').hidden=!(mz&&MZ.part);{const pr=$('mzPrev'),nx=$('mzNext');if(MZ.part){pr.textContent='◀ Note';nx.textContent='Note ▶';pr.title='Recule d\'un accord dans la répartition, sans rien changer : rejoue sa main droite pour le corriger. Garde le bouton enfoncé pour reculer vite. La pédale de gauche fait la même chose.';nx.title='Avance d\'un accord dans la répartition, sans rien changer. Garde le bouton enfoncé pour avancer vite. La pédale du milieu fait la même chose.'}else{pr.textContent='◀ Mesure';nx.textContent='Mesure ▶';pr.title=pr.dataset.t||pr.title;nx.title=nx.dataset.t||nx.title}}pill();const setVis=mz&&cfg.mzSet&&!(MZ.part&&MZ.part.fold);$('mzSet').setAttribute('aria-pressed',setVis?'true':'false');$('mzOrgWrap').hidden=!(mz&&cfg.son==='piano');$('mzTuyWrap').hidden=!(mz&&cfg.son!=='piano');['mzSortieWrap','mzCaler','mzCalV'].forEach(id=>{$(id).hidden=!(mz&&cfg.son!=='piano')});if(document.activeElement!==$('mzSortie'))$('mzSortie').value=cfg.sortieBT?'1':'0';$('mzCalV').textContent=calTexte();$('mzCalV').title='Le décalage entre la note jouée par l\'ordinateur et le son que tu entends, pour cette sortie. « Caler la barre sur le son » le mesure.';if(document.activeElement!==$('mzTuy'))$('mzTuy').value=cfg.tuyaux===false?'0':'1';$('mzOrgV').textContent=cfg.orgPc;$('mzLearn').setAttribute('aria-pressed',cfg.learn?'true':'false');$('mzNoms').setAttribute('aria-pressed',cfg.noms?'true':'false');if(document.activeElement!==$('mzSon'))$('mzSon').value=cfg.son;if(document.activeElement!==$('mzAff'))$('mzAff').value=cfg.affichage;$('mzPedal').setAttribute('aria-pressed',cfg.pedalPlay?'true':'false');$('zones').hidden=mz;$('mzRow').hidden=!setVis;$('staffBox').hidden=mz;$('scoreBox').hidden=!mz;updSkip();MZ.dots();MZ.noms()}
+const mz=cfg.mode==='morceau';document.body.classList.toggle('mz',mz);{const c=$('mzConsigne');c.hidden=!(mz&&MZ.data&&MZ.data.consigne)}$('mzRestart').hidden=!mz;$('mzPlay').hidden=!mz;$('mzPedal').hidden=!mz;$('mzSonWrap').hidden=!mz;['mzPrev','mzNext','mzLearn','mzNoms','mzSet','mzPdf','mzPup','mzJeux','pageInfo','micRow'].forEach(id=>{$(id).hidden=!mz});micInstrUI();{if(!mz&&ANN.on){ANN.on=false;ANN.stop();ANN.avant=null}const a=$('mzAnn');a.hidden=!mz;a.setAttribute('aria-pressed',ANN.on?'true':'false');$('mzAnnUndo').hidden=!(mz&&ANN.on&&ANN.peutAnnuler());const v=$('mzAnnVis');v.hidden=!(mz&&ANN.list().length>0);v.setAttribute('aria-pressed',cfg.annVis!==false?'true':'false');document.documentElement.classList.toggle('annots-cachees',cfg.annVis===false);document.documentElement.classList.toggle('annoter',ANN.on)}$('mzPdf').setAttribute('aria-pressed',mz&&cfg.pdfRow?'true':'false');$('pdfRow').hidden=!(mz&&cfg.pdfRow);$('pdfAng').checked=cfg.pdfAng!==false;$('mzRepEnd').hidden=!(mz&&MZ.part);{const pr=$('mzPrev'),nx=$('mzNext');if(MZ.part){pr.textContent='◀ Note';nx.textContent='Note ▶';pr.title='Recule d\'un accord dans la répartition, sans rien changer : rejoue sa main droite pour le corriger. Garde le bouton enfoncé pour reculer vite. La pédale de gauche fait la même chose.';nx.title='Avance d\'un accord dans la répartition, sans rien changer. Garde le bouton enfoncé pour avancer vite. La pédale du milieu fait la même chose.'}else{pr.textContent='◀ Mesure';nx.textContent='Mesure ▶';pr.title=pr.dataset.t||pr.title;nx.title=nx.dataset.t||nx.title}}pill();const setVis=mz&&cfg.mzSet&&!(MZ.part&&MZ.part.fold);$('mzSet').setAttribute('aria-pressed',setVis?'true':'false');$('mzOrgWrap').hidden=!(mz&&cfg.son==='piano');$('mzTuyWrap').hidden=!(mz&&cfg.son!=='piano');['mzSortieWrap','mzCaler','mzCalV'].forEach(id=>{$(id).hidden=!(mz&&cfg.son!=='piano')});if(document.activeElement!==$('mzSortie'))$('mzSortie').value=cfg.sortieBT?'1':'0';$('mzCalV').textContent=calTexte();$('mzCalV').title='Le décalage entre la note jouée par l\'ordinateur et le son que tu entends, pour cette sortie. « Caler la barre sur le son » le mesure.';if(document.activeElement!==$('mzTuy'))$('mzTuy').value=cfg.tuyaux===false?'0':'1';$('mzOrgV').textContent=cfg.orgPc;$('mzLearn').setAttribute('aria-pressed',cfg.learn?'true':'false');$('mzNoms').setAttribute('aria-pressed',cfg.noms?'true':'false');if(document.activeElement!==$('mzSon'))$('mzSon').value=cfg.son;if(document.activeElement!==$('mzAff'))$('mzAff').value=cfg.affichage;$('mzPedal').setAttribute('aria-pressed',cfg.pedalPlay?'true':'false');$('zones').hidden=mz;$('mzRow').hidden=!setVis;$('staffBox').hidden=mz;$('scoreBox').hidden=!mz;updSkip();MZ.dots();MZ.noms()}
 async function setMode(m){const was=cfg.mode;mineAll();repStop();cfg.mode=m;save();syncUI();
 if(was==='morceau'&&m!=='morceau')MZ.stopAll();
 if(m==='morceau'){if(!MZ.svg||MZ.id!==(cfg.morceau||MZ.id))await MZ.open(cfg.morceau||(MZ.list[0]&&MZ.list[0].id));else{MZ.paginate();MZ.restart()}}
@@ -2072,9 +2073,81 @@ const MIC_CAPTEUR="class Capteur extends AudioWorkletProcessor{constructor(o){su
 +"registerProcessor('capteur',Capteur);";
 // le même, en secours dans le fil de la page (navigateur sans AudioWorklet)
 function micReech(r,cb){const b=new Float32Array(256);let n=0,k=0,t=0,l=0;const p=v=>{b[n++]=v;if(n===256){cb(b.slice(0));n=0}};return x=>{for(let i=0;i<x.length;i++){const c=x[i];if(r===1){p(c);continue}while(t<=k){p(l+(c-l)*(t-k+1));t+=r}l=c;k++}}}
+// Écoute « Piano » : celle du 24/10 (lecture-clavier-micro.html, commit 6dacbae), reprise sans changement.
+class PianoSpectrum {
+ constructor(rate,size){
+  this.rate=rate;this.size=size;this.columns=[];this.previous=null;this.noise=null;
+  this.y=new Float32Array(size/2);this.residual=new Float32Array(size/2);this.coeff=new Float32Array(88);
+  for(let midi=21;midi<=108;midi++){
+   const bins=new Map(),f=440*Math.pow(2,(midi-69)/12),center=f*size/rate;
+   for(let h=1;h<=7;h++){
+    const b=center*h;if(b>=size/2-3)break;
+    for(let k=Math.max(1,Math.floor(b)-2);k<=Math.ceil(b)+2;k++){
+     const x=k-b,sinc=v=>Math.abs(v)<1e-8?1:Math.sin(Math.PI*v)/(Math.PI*v);
+     const w=Math.abs(.42*sinc(x)+.25*(sinc(x-1)+sinc(x+1))+.04*(sinc(x-2)+sinc(x+2)));
+     if(w>.003)bins.set(k,(bins.get(k)||0)+w/Math.pow(h,1.15));
+    }
+   }
+   const a=[...bins],norm=Math.sqrt(a.reduce((s,p)=>s+p[1]*p[1],0));
+   this.columns.push({bins:Uint16Array.from(a,p=>p[0]),weights:Float32Array.from(a,p=>p[1]/norm)});
+  }
+ }
+ calibrate(db){
+  if(!this.noise)this.noise=new Float32Array(db.length);
+  for(let k=0;k<db.length;k++){const v=Number.isFinite(db[k])?Math.pow(10,db[k]/20):0;this.noise[k]=this.noise[k]===0?v:.85*this.noise[k]+.15*v}
+ }
+ analyse(db){
+  const y=this.y,r=this.residual,c=this.coeff;let energy=0,flux=0,power=0;
+  for(let k=0;k<y.length;k++){
+   const v=Number.isFinite(db[k])&&db[k]>-105?Math.pow(10,db[k]/20):0;
+   y[k]=Math.max(0,v-(this.noise?this.noise[k]*1.4:0));
+   if(k>1){energy+=y[k];power+=y[k]*y[k];if(this.previous)flux+=Math.max(0,y[k]-this.previous[k])}
+  }
+  if(!this.previous)this.previous=new Float32Array(y.length);this.previous.set(y);r.set(y);c.fill(0);
+  // Flat typed arrays and reused buffers avoid the per-frame iterator/GC load.
+  for(let pass=0;pass<6;pass++)for(let p=0;p<88;p++){
+   const col=this.columns[p],b=col.bins,w=col.weights;let dot=0;
+   for(let i=0;i<b.length;i++)dot+=r[b[i]]*w[i];
+   const next=Math.max(0,c[p]+dot),delta=next-c[p];c[p]=next;
+   if(delta)for(let i=0;i<b.length;i++)r[b[i]]-=delta*w[i];
+  }
+  let top=0,error=0;for(let p=0;p<88;p++)top=Math.max(top,c[p]);for(let k=2;k<r.length;k++)error+=r[k]*r[k];
+  const notes=new Map();for(let p=0;p<88;p++)if(top>0&&c[p]>top*.055)notes.set(p+21,c[p]/top);
+  return {notes,flux:energy?flux/energy:0,energy,confidence:power?Math.max(0,1-error/power):0};
+ }
+}
+class PianoAttackGate {
+ constructor(){this.reset()}
+ reset(){this.last=-Infinity;this.pending=-Infinity;this.lastFlux=0;this.silent=true;this.stable=0;this.key=null;this.previous=new Map();this.blocked=new Set();this.seen=new Map();this.lastLevel=0;this.armed=true;this.onsetAfter=-Infinity}
+ update(now,frame,want,level,threshold,key,loose=true){
+  if(key!==this.key){this.key=key;this.stable=0;this.pending=-Infinity;this.seen.clear()}
+  if(level<threshold){this.silent=true;this.pending=-Infinity;this.stable=0;this.previous=new Map();this.blocked.clear();this.seen.clear();this.lastLevel=level;this.lastFlux=0;this.armed=true;return false}
+  const novelty=want.some(m=>(frame.notes.get(m)||0)>.20&&(this.previous.get(m)||0)<.08&&!this.blocked.has(m));
+  // A fresh spectral rise plus a volume rise re-arms a repeated note. Mere
+  // spectral fluctuations of a decaying piano tone must not count as attacks.
+  const spectralAttack=frame.flux>.12&&(this.armed||this.lastFlux<.06)&&(level>this.lastLevel*1.06||frame.flux>.32);
+  const onset=this.silent||novelty||spectralAttack;
+  if(frame.flux<.05)this.armed=true;
+  if(onset&&now-this.last>=55&&now-this.onsetAfter>=55){this.pending=now;this.seen.clear();this.stable=0;this.armed=false;this.onsetAfter=now}
+  this.silent=false;this.lastFlux=frame.flux;this.lastLevel=level;this.previous=frame.notes;
+  for(const m of [...this.blocked])if((frame.notes.get(m)||0)<.08)this.blocked.delete(m);
+  if(!want.length||now-this.pending>650||now-this.last<55)return false;
+  if(frame.confidence!==undefined&&frame.confidence<.5){this.stable=0;return false}
+  // Accumulate chord members over a short attack, rather than demanding that
+  // every quiet/rolled note exceed the same global threshold in one frame.
+  for(const m of want)if((frame.notes.get(m)||0)>=.10)this.seen.set(m,now);
+  const count=want.filter(m=>now-(this.seen.get(m)??-Infinity)<140).length;
+  const required=loose&&want.length>=3?Math.ceil(want.length*2/3):want.length;
+  const maxWanted=Math.max(0,...want.map(m=>frame.notes.get(m)||0));
+  const hit=count>=required&&maxWanted>=(want.length===1?.55:.28);
+  this.stable=hit?this.stable+1:0;if(this.stable<2)return false;
+  this.last=now;this.pending=-Infinity;this.stable=0;this.blocked=new Set(frame.notes.keys());this.seen.clear();return true;
+ }
+}
+function micInstrUI(){const ib=document.getElementById('micInstr');if(!ib)return;const p=cfg.micInstr==='piano';ib.dataset.v=p?'piano':'orgue';ib.textContent=p?'Piano':'Orgue'}
 const MIC={active:false,asking:false,token:0,stream:null,ctx:null,raf:0,lastFrame:0,lastUI:0,
  say(text,kind=''){const el=$('micStatus');el.textContent=text;el.className='small '+kind},
- ui(){const b=$('micPiano');b.textContent=this.active?'Arrêter le micro':this.asking?'Annuler le micro':'Micro';b.setAttribute('aria-pressed',String(this.active));$('micControls').hidden=!this.active},
+ ui(){const b=$('micPiano');b.textContent=this.active?'Arrêter le micro':this.asking?'Annuler le micro':'Micro';b.setAttribute('aria-pressed',String(this.active));$('micControls').hidden=!this.active;micInstrUI()},
  async toggle(){if(this.active||this.asking){this.stop();return}await this.start()},
  environment(){
   let embedded=false,policy=null;try{embedded=window.self!==window.top}catch(e){embedded=true}
@@ -2115,7 +2188,7 @@ const MIC={active:false,asking:false,token:0,stream:null,ctx:null,raf:0,lastFram
   try{
    // Construct/resume in the click gesture (not after the permission dialog).
    const AC=window.AudioContext||window.webkitAudioContext;
-   try{ctx=new AC({latencyHint:'interactive',sampleRate:24000})}catch(e){ctx=new AC({latencyHint:'interactive'})}this.ctx=ctx;
+   const piano=cfg.micInstr==='piano';try{ctx=new AC({latencyHint:'interactive',sampleRate:piano?44100:24000})}catch(e){ctx=new AC({latencyHint:'interactive'})}this.ctx=ctx;
    // Start both requests directly in the click gesture. Handle resume rejection
    // immediately; do not lose the gesture while awaiting audio initialisation.
    const resuming=ctx.resume().then(()=>null,e=>e);
@@ -2124,7 +2197,7 @@ const MIC={active:false,asking:false,token:0,stream:null,ctx:null,raf:0,lastFram
    if(token!==this.token){stream.getTracks().forEach(t=>t.stop());if(ctx.state!=='closed')await ctx.close();return}
    stage='activation audio';const resumeError=await resuming;if(resumeError)throw resumeError;
    if(token!==this.token){stream.getTracks().forEach(t=>t.stop());await ctx.close();return}
-   this.stream=stream;this.source=ctx.createMediaStreamSource(stream);stage='capteur du son';
+   this.stream=stream;this.source=ctx.createMediaStreamSource(stream);stage='capteur du son';this.gate=null;if(piano){this.startPiano(ctx,stream);return}
    this.or=creeOreille(24000,{sens:5+1.5*Number($('micSensitivity').value||0),cents:this.diapasonLu(),appris:0});this.pretDit='';this.lastDia=0;this.level=0;this.recents=new Map();this.eus=new Map();this.kEus=-1;this.parti=-1;
    const ratio=ctx.sampleRate/24000;let node=null;
    try{if(!ctx.audioWorklet||typeof AudioWorkletNode==='undefined')throw Error('pas de worklet');const u=URL.createObjectURL(new Blob([MIC_CAPTEUR],{type:'text/javascript'}));await ctx.audioWorklet.addModule(u);URL.revokeObjectURL(u);
@@ -2135,7 +2208,7 @@ const MIC={active:false,asking:false,token:0,stream:null,ctx:null,raf:0,lastFram
    this.node=node;this.mute=ctx.createGain();this.mute.gain.value=0;this.source.connect(node);node.connect(this.mute);this.mute.connect(ctx.destination);
    this.active=true;this.asking=false;this.lastFrame=0;this.lastUI=0;
    const start=MZ.ended?MZ.k0:MZ.k;MZ.stopAll();mineAll();OUT.panic();MZ.ended=false;MZ.goto(start,true);this.ui();
-   this.say('Prêt · joue les notes en bleu.');JRN.add('micro',{quoi:'ouvert',capteur:this.capteur,frequence:ctx.sampleRate});
+   this.say('Prêt · joue les notes en bleu.');JRN.add('micro',{quoi:'ouvert',oreille:'orgue',capteur:this.capteur,frequence:ctx.sampleRate});
    stream.getAudioTracks().forEach(t=>t.addEventListener('ended',()=>{if(this.active)this.stop('Le microphone a été déconnecté.')}));
    this.raf=requestAnimationFrame(t=>this.frame(t));
   }catch(e){
@@ -2149,12 +2222,43 @@ const MIC={active:false,asking:false,token:0,stream:null,ctx:null,raf:0,lastFram
  stop(message='Micro arrêté. Le suivi par câble MIDI reste disponible.'){
   this.cancelAccompaniment();MZ.voices.forEach(v=>AUD.stop(v));MZ.voices.clear();MZ.paintKeys();
   ++this.token;this.active=false;this.asking=false;cancelAnimationFrame(this.raf);this.raf=0;
-  if(this.source)try{this.source.disconnect()}catch(e){}this.source=null;if(this.node)try{this.node.disconnect();if(this.node.port)this.node.port.onmessage=null;this.node.onaudioprocess=null}catch(e){}this.node=null;this.or=null;
+  if(this.source)try{this.source.disconnect()}catch(e){}this.source=null;if(this.node)try{this.node.disconnect();if(this.node.port)this.node.port.onmessage=null;this.node.onaudioprocess=null}catch(e){}this.node=null;this.or=null;this.gate=null;this.engine=null;this.bassEngine=null;this.analyser=null;this.bassAnalyser=null;
   if(this.stream)this.stream.getTracks().forEach(t=>t.stop());this.stream=null;
   if(this.ctx&&this.ctx.state!=='closed')this.ctx.close().catch(()=>{});this.ctx=null;
   this.ui();this.say(message);
  },
- reset(){this.audioOrn=null;this.eus=new Map();this.kEus=-1;this.parti=-1},
+ reset(){this.audioOrn=null;this.eus=new Map();this.kEus=-1;this.parti=-1;if(this.gate)this.gate.reset();if(this.engine)this.engine.previous=null;if(this.bassEngine)this.bassEngine.previous=null},
+ // écoute « Piano » : deux analyses du son (la basse plus fine), 0,7 s de silence pour mesurer le fond, puis une attaque reconnue = un moment
+ startPiano(ctx,stream){
+  this.analyser=ctx.createAnalyser();this.analyser.fftSize=2048;this.analyser.smoothingTimeConstant=0;this.source.connect(this.analyser); // jamais relié aux haut-parleurs
+  this.bassAnalyser=ctx.createAnalyser();this.bassAnalyser.fftSize=4096;this.bassAnalyser.smoothingTimeConstant=0;this.source.connect(this.bassAnalyser);
+  this.bassDb=new Float32Array(this.bassAnalyser.frequencyBinCount);this.bassEngine=new PianoSpectrum(ctx.sampleRate,4096);this.usingBass=null;
+  this.db=new Float32Array(this.analyser.frequencyBinCount);this.wave=new Float32Array(this.analyser.fftSize);
+  this.engine=new PianoSpectrum(ctx.sampleRate,2048);this.gate=new PianoAttackGate();this.or=null;this.capteur='AnalyserNode (piano)';
+  this.active=true;this.asking=false;this.calUntil=performance.now()+700;this.noise=[];this.floor=0;this.lastFrame=0;this.lastUI=0;
+  const start=MZ.ended?MZ.k0:MZ.k;MZ.stopAll();mineAll();OUT.panic();MZ.ended=false;MZ.goto(start,true);this.ui();
+  this.say('Ne joue pas encore : j’écoute 1 seconde le silence.');JRN.add('micro',{quoi:'ouvert',oreille:'piano',capteur:this.capteur,frequence:ctx.sampleRate});
+  stream.getAudioTracks().forEach(t=>t.addEventListener('ended',()=>{if(this.active)this.stop('Le microphone a été déconnecté.')}));
+  this.raf=requestAnimationFrame(t=>this.frame(t));
+ },
+ framePiano(now){
+  if(now-this.lastFrame<15)return;this.lastFrame=now;
+  if(this.ctx&&this.ctx.state!=='running'){this.say('Micro suspendu : arrête et réactive le micro.');return}
+  this.analyser.getFloatTimeDomainData(this.wave);let rms=0;const a=Math.max(0,this.wave.length-512);for(let i=a;i<this.wave.length;i++)rms+=this.wave[i]*this.wave[i];rms=Math.sqrt(rms/(this.wave.length-a));
+  $('micLevel').value=Math.min(1,rms*12);
+  if(now<this.calUntil){this.noise.push(rms);this.analyser.getFloatFrequencyData(this.db);this.engine.calibrate(this.db);this.bassAnalyser.getFloatFrequencyData(this.bassDb);this.bassEngine.calibrate(this.bassDb);return}
+  if(this.noise.length){this.noise.sort((x,y)=>x-y);this.floor=Math.min(.003,this.noise[Math.floor(this.noise.length*.3)]);this.noise=[];this.say('Prêt : tu peux jouer.');this.lastUI=now;this.reset();JRN.add('micro',{quoi:'fond mesuré',oreille:'piano',fond:Math.round(this.floor*1e6)/1e6})}
+  if(!this.suivable())return;
+  const k=MZ.k,want=this.veut(k);if(!want.length)return;
+  const bass=want.some(m=>m<52),an=bass?this.bassAnalyser:this.analyser,db=bass?this.bassDb:this.db,eng=bass?this.bassEngine:this.engine;
+  if(bass!==this.usingBass){eng.previous=null;this.usingBass=bass}
+  an.getFloatFrequencyData(db);const f=eng.analyse(db);
+  const threshold=Math.max(.00035,(this.floor||0)*1.8)*Math.pow(2,-Number($('micSensitivity').value)/2);
+  if(this.gate.update(now,f,want,rms,threshold,MZ.id+':'+k,$('micChordMode').value!=='strict')){
+   if(typeof MIC_TRACE!=='undefined'&&MIC_TRACE.on)MIC_TRACE.event('valide_piano',{k,want});
+   this.playTogether(k);this.accept()}
+  else if(now-this.lastUI>650){this.lastUI=now;this.say(rms<threshold?'J’attends le piano · joue : '+MZ.userNotes(k).map(j=>MZ.nameOf(j)).join(' ')+' · mesure '+(MZ.moms[k].mes+1):'J’écoute · joue : '+MZ.userNotes(k).map(j=>MZ.nameOf(j)).join(' ')+' · mesure '+(MZ.moms[k].mes+1))}
+ },
  startOrn(U){
   const notes=new Set();let duration=0;
   for(const j of U){const n=MZ.data.notes[j],o=n[8];if(!o||o[0]==='a')continue;
@@ -2226,8 +2330,14 @@ const MIC={active:false,asking:false,token:0,stream:null,ctx:null,raf:0,lastFram
   if(a.h.length){a.h.forEach(m=>this.eus.set(m,now));if(this.parti!==k){this.parti=k;this.playTogether(k)}}
   let ok=a.passe;if(ok&&!a.saut&&$('micChordMode').value==='strict'&&w0.length>1){const e=new Set([...viv,...a.h]);ok=w0.every(q=>e.has(q))}
   tr({decision:a.saut?'rattrape_'+a.saut:ok?'valide':a.h.length?'notes_en_partie':'rien_d_attendu',k,want:w0});if(!ok)return;
-  for(let s=0;s<=a.saut;s++){this.veut(MZ.k).forEach(m=>this.recents.set(m,now));this.accept();if(!this.suivable())break}},
- frame(now){if(!this.active)return;this.raf=requestAnimationFrame(t=>this.frame(t));if(now-this.lastFrame<60)return;this.lastFrame=now;
+  const k0=MZ.k;let kh=k0;for(let s=0;s<=a.saut;s++){kh=MZ.k;this.veut(MZ.k).forEach(m=>this.recents.set(m,now));this.accept();if(!this.suivable())break}if(a.saut)this.rattrape(k0,kh)},
+ // la barre a sauté de k0 à kh : les notes de la page de ces moments sonnent maintenant, jusqu'à leur fin écrite comptée depuis le moment entendu
+ rattrape(k0,kh){if(!this.active||!$('micHeadphones').checked||!MZ.moms[kh])return;const t=MZ.moms[kh].sec,factor=100/(MZ.st.vit||100);
+  for(let q=k0;q<=kh;q++)MZ.pageNotes(q).forEach(j=>{if(this.accompanimentPlayed.has(j)||MZ.voices.has(j))return;const n=MZ.data.notes[j],ms=(n[5]-t)*1000*factor;if(ms<60)return;
+   this.accompanimentPlayed.add(j);if(typeof MIC_TRACE!=='undefined'&&MIC_TRACE.on)MIC_TRACE.event('accompagnement_rattrape',{k0,kh,pageNote:n[1]});
+   const v=MZ.voice(j)||{};v.micTimed=true;MZ.voices.set(j,v);setTimeout(()=>{if(MZ.voices.get(j)===v){AUD.stop(v);MZ.voices.delete(j);MZ.paintKeys()}},ms)});
+  MZ.paintKeys()},
+ frame(now){if(!this.active)return;this.raf=requestAnimationFrame(t=>this.frame(t));if(this.gate){this.framePiano(now);return}if(now-this.lastFrame<60)return;this.lastFrame=now;
   if(this.ctx&&this.ctx.state!=='running'){this.say('Micro suspendu : arrête et réactive le micro.');return}
   $('micLevel').value=Math.min(1,(this.level||0)*12);this.level=(this.level||0)*0.85;
   if(this.or&&!this.or.pret){if(this.pretDit!=='fond'){this.pretDit='fond';this.say('Ne joue pas encore : j’écoute 3 secondes le fond de la salle (soufflerie, bruit).')}return}
@@ -2237,6 +2347,7 @@ const MIC={active:false,asking:false,token:0,stream:null,ctx:null,raf:0,lastFram
  }
 };
 $('micPiano').addEventListener('click',()=>MIC.toggle());
+$('micInstr').addEventListener('click',()=>{cfg.micInstr=cfg.micInstr==='piano'?'orgue':'piano';save();micInstrUI();JRN.add('réglage',{quoi:'écoute du micro',valeur:cfg.micInstr});if(MIC.active||MIC.asking){MIC.stop('');MIC.start()}else MIC.say(cfg.micInstr==='piano'?'Écoute piano : allume le micro avant de jouer.':'Écoute orgue : allume le micro avant de jouer.')});micInstrUI();
 $('micSensitivity').addEventListener('input',e=>{if(MIC.or)MIC.or.sens=5+1.5*Number(e.target.value)});
 // Leaving the score or playing the computer's own sound releases the microphone.
 const micPlay=MZ.play;MZ.play=function(...args){if(MIC.active||MIC.asking)MIC.stop('Micro arrêté pendant l’écoute.');return micPlay.apply(this,args)};
@@ -2269,7 +2380,7 @@ window.addEventListener('pagehide',()=>{if(MIC.active||MIC.asking)MIC.stop()});
 const MIC_TRACE={on:false,starting:false,finishing:false,data:null,frames:[],events:[],urls:[],recorder:null,audioBlob:null,timer:null,pulse:null,
  phase(ms){return ms<4000?'bruit_avant':ms<35000?'piano_main_droite':'bruit_apres'},
  text(message){$('micTraceStatus').textContent=message},
- settings(){return {sensitivity:Number($('micSensitivity').value),chords:$('micChordMode').value,tempoBpm:MZ.st?.bpm??null,metronome:typeof MET!=='undefined'&&MET.on,detecteur:'oreille de Claude (25/10, orgue)',diapason:MIC.or?Math.round(MIC.or.cents):null,capteur:MIC.capteur||null,sampleRate:MIC.ctx?.sampleRate??null}},
+ settings(){return {sensitivity:Number($('micSensitivity').value),chords:$('micChordMode').value,tempoBpm:MZ.st?.bpm??null,metronome:typeof MET!=='undefined'&&MET.on,detecteur:MIC.gate?'écoute piano (24/10)':'oreille de Claude (25/10, orgue)',diapason:MIC.or?Math.round(MIC.or.cents):null,capteur:MIC.capteur||null,sampleRate:MIC.ctx?.sampleRate??null}},
  context(){return {piece:MZ.id,title:MZ.data?.titre,index:MZ.k,measure:(MZ.moms[MZ.k]?.mes??0)+1,expected:MZ.userNotes(MZ.k).map(j=>MZ.data.notes[j][1])}},
  compact(value){return Number.isFinite(value)?Math.round(value*1000000)/1000000:null},
  spectrum(db){
