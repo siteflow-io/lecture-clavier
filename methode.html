@@ -40,6 +40,10 @@ button[aria-pressed="true"]{background:var(--accbg);color:var(--accfg);border-co
 #notePal{position:absolute;z-index:5;background:#ffffff;color:#1f1e1c;border:1px solid #c9c7bf;border-radius:10px;padding:8px;box-shadow:0 3px 12px rgba(0,0,0,.18);font-size:13px;max-width:330px}
 #notePal .t{font-weight:600;margin-bottom:6px}#notePal .r{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-top:4px}
 #notePal button{padding:3px 9px;font-size:13px;background:#fff;color:#1f1e1c;border-color:#c9c7bf}#notePal button[aria-pressed="true"]{background:#E6F1FB;color:#0C447C;border-color:#185FA5}
+#annBar{position:absolute;z-index:6;background:#ffffff;color:#1f1e1c;border:1px solid #c9c7bf;border-radius:10px;padding:8px;box-shadow:0 3px 12px rgba(0,0,0,.18);font-size:13px;max-width:360px}
+#annBar .t{font-weight:600;margin-bottom:6px}#annBar .r{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-top:6px}
+#annBar button{padding:3px 9px;font-size:13px;background:#fff;color:#1f1e1c;border-color:#c9c7bf}#annBar button[aria-pressed="true"]{background:#E6F1FB;color:#0C447C;border-color:#185FA5}#annBar input{font-size:13px;padding:3px 6px;background:#fff;color:#1f1e1c;border:1px solid #c9c7bf;border-radius:6px}
+.annots-cachees g.annots{display:none}html.annoter #scoreSvg{cursor:crosshair}#mzAnn[aria-pressed="true"]{background:#E6F1FB;color:#0C447C;border-color:#185FA5}
 #scoreBox g.nh.ok path{fill:#1D9E75!important}
 #scoreBox g.nh.bad path{fill:#D85A30!important}
 #pageInfo{max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--muted)}
@@ -193,6 +197,9 @@ body:not(.mz) #mzBar{display:none!important}
 <span class="sep"></span>
 <button id="mzLearn" hidden title="Montre sur le clavier du bas les touches à jouer, avant que tu les joues : la touche à jouer maintenant est colorée, la suivante a la même couleur en pâle (bleu main droite, violet main gauche, rose pédale). Pendant l'apprentissage, la page ne compte ni tes temps ni tes fautes.">Apprentissage</button>
 <button id="mzNoms" hidden title="Écrit le nom de chaque note à côté d'elle dans la partition, dans la couleur de sa partie. Clique encore pour les enlever.">Noms</button>
+<button id="mzAnn" hidden aria-pressed="false" title="Allume l'annotation. Touche la première note d'un passage, puis la dernière (la même pour une seule note), et choisis la marque : entourer, souligner, surligner, texte, doigté ou respiration. La page la dessine nette, accrochée aux notes : elle reste à sa place en pages, en défilement et au pupitre, et elle est gardée dans ce navigateur. Touche une marque déjà posée pour changer sa couleur ou l'effacer. Tant que c'est allumé, un clic sur une note n'ouvre plus la petite fenêtre des mains et du doigté ; reclique pour éteindre.">Annoter</button>
+<button id="mzAnnUndo" hidden title="Défait ton dernier geste d'annotation sur ce morceau : une marque posée, effacée ou changée de couleur. Chaque clic défait un geste de plus.">Annuler</button>
+<button id="mzAnnVis" hidden aria-pressed="true" title="Montre ou cache tes annotations, ici et au pupitre. Cachées, elles restent gardées ; reclique pour les revoir.">Mes notes</button>
 <span id="mzMetroControls" style="display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap"><label class="lab" title="Tempo commun au métronome, à l’écoute et aux notes jouées par la page. Une pulsation correspond à une noire.">Tempo ♩ = <input id="mzTempo" type="number" min="20" max="300" step="1" inputmode="numeric" style="width:5em" aria-label="Tempo en battements par minute"> BPM</label> <button id="mzMetro" type="button" aria-pressed="false">Démarrer le métronome</button> <label class="lab" title="Nombre de pulsations entre deux accents. Une clochette sonne sur le premier temps.">Temps/mesure <input id="mzMetroMeter" type="number" min="1" max="12" step="1" inputmode="numeric" style="width:3.5em" aria-label="Pulsations par mesure"></label> <span id="mzMetroBeat" aria-hidden="true" style="opacity:.25;color:#185FA5">●</span> <span id="mzMetroStatus" class="small" role="status">Métronome arrêté</span></span>
 <span id="mzMsg" class="err-msg"></span>
 <span style="flex:1"></span>
@@ -248,6 +255,10 @@ body:not(.mz) #mzBar{display:none!important}
 <label class="lab" title="Comment la partition avance. « défilement » : tu vois toujours la ligne en cours et la ligne d'après en entier ; dès que tu commences la ligne suivante, la partition monte d'une ligne, en douceur. « pages » : la partition tourne par pages entières, avec les notes plus grandes.">Affichage <select id="mzAff" title="Comment la partition avance : en défilement, ligne par ligne, ou par pages."><option value="defil">défilement</option><option value="pages">pages</option></select></label>
 <span class="sep"></span>
 <label class="lab" id="mzFinWrap" title="Combien de temps dure le dernier accord du morceau, quand tu le joues et à l'écoute, en temps (une noire au tempo de la fin du morceau, à la vitesse choisie). Au départ 4 temps, ou plus si la partition l'écrit plus long. Gardé pour chaque morceau.">Accord final <input id="mzFin" type="number" min="1" max="16" step="1" title="Durée du dernier accord, en temps (de 1 à 16)."> temps</label>
+<span class="sep"></span>
+<button id="annSave" title="Enregistre toutes tes annotations (tous les morceaux, Lecture et Méthode) dans un fichier, dans Téléchargements. Garde-le : si ce navigateur s'efface, ou pour les mettre sur un autre appareil, « Reprendre une sauvegarde » les remet en place.">Sauvegarder mes annotations</button>
+<button id="annLoad" title="Remet en place les annotations d'un fichier fait par « Sauvegarder mes annotations ». Elles s'ajoutent à celles qui sont déjà là : rien n'est en double, rien n'est effacé.">Reprendre une sauvegarde</button>
+<input id="annFile" type="file" accept=".json,application/json" hidden>
 </div>
 <div class="ligne">
 <span id="mzParts" class="row"></span>
@@ -281,7 +292,7 @@ body:not(.mz) #mzBar{display:none!important}
 
 <div id="staffBox" class="paper"><svg id="staff" viewBox="0 -6 1000 426" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Portée"></svg></div>
 <div id="mzConsigne" hidden></div>
-<div id="scoreBox" class="paper" hidden><div id="scoreSvg" style="width:100%;height:100%"></div><div id="scoreMsg"></div><div id="notePal" hidden></div></div>
+<div id="scoreBox" class="paper" hidden><div id="scoreSvg" style="width:100%;height:100%"></div><div id="scoreMsg"></div><div id="notePal" hidden></div><div id="annBar" hidden role="dialog" aria-label="Annoter"></div></div>
 
 <div id="fb">
 <div id="big"></div>
@@ -334,6 +345,7 @@ body:not(.mz) #mzBar{display:none!important}
 <p><b>Les mains.</b> La partition ne dit pas quelle main joue chaque note. La page en propose une répartition, la plus logique : chaque note va à la main de sa portée, sauf des octaves écrites sur une seule portée quand l'autre main ne joue pas (le haut à droite, le bas à gauche), une note isolée au milieu d'une ligne de l'autre main (elle reste dans la main de la ligne), et un écart de plus d'une neuvième (la note extrême passe à l'autre main). Les notes prennent la couleur de leur main (bleu droite, violet gauche). Pour la corriger : dans Réglages, choisis le passage (Mesures … à …), puis « Répartir les mains » : joue ta <b>main droite seule</b>, à ton rythme, comme tu la travailles mains séparées. Ce que tu joues à un accord devient bleu (main droite), le reste de l'accord violet (main gauche) ; si tu joues plus loin, les accords que tu as passés sans y jouer deviennent violets. Tu peux jouer lié. <b>Pour corriger :</b> « ◀ Note » (ou la pédale de gauche) recule d'un accord sans rien changer, « Note ▶ » (ou la pédale du milieu) avance d'un accord ; garde-les enfoncés pour aller vite. Rejoue la main droite d'un accord pour le refaire en entier ; joue ensemble les notes d'un accord que ta main droite prend en entier (un accord arpégé, note après note). Une fausse note ne fait jamais sauter un accord qui a, ou peut avoir, une main droite ; seuls les accords où rien n'est à la main droite (ni dans ta répartition, ni dans la proposition de la page) se passent tout seuls : tu ne joues que ce qui est proposé à droite, et tu corriges ce qui ne te va pas. Une trille peut commencer par la note du dessus. Pour finir : « Terminer la répartition » (ou la pédale de droite). « Effacer la répartition » (dans Réglages) efface tout pour repartir de zéro ; les doigtés restent. Pendant la répartition, les réglages se replient (« Réglages » les rouvre) et les noms des notes restent gris. « Mains : répartition des mains » (le réglage de départ) fait suivre cette répartition aux parties « Main droite » et « Main gauche » ; « selon les portées » revient à la partition. Ta répartition est gardée dans ce navigateur, pour chaque morceau.</p>
 <p><b>Le journal.</b> La page note tout ce que tu fais (touches et pédales du piano, boutons, clics sur la partition) et ce qu'elle en comprend, et le garde dans ce navigateur : tes dernières séances, environ une heure de jeu en tout (les plus anciennes partent d'abord). Dans Réglages, « Exporter le journal » l'enregistre dans tes Téléchargements, avec ta répartition des mains : envoie ce fichier à Claude quand quelque chose ne va pas. Rien ne part tout seul.</p>
 <p><b>Corriger une note, écrire un doigté.</b> Clique sur une note de la partition : une petite fenêtre permet de la changer de main et d'écrire son doigté (1 à 5), qui s'affiche au-dessus de la note. « effacer » retire le doigté. Échap ou un clic ailleurs ferme la fenêtre.</p>
+<p><b>Annoter.</b> Allume « Annoter », touche la première note d'un passage puis la dernière (la même pour une seule note ; la dernière sur l'autre portée pour prendre les deux portées) : les notes choisies s'entourent de pointillés. Choisis la marque : <b>Entourer</b>, <b>Souligner</b>, <b>Surligner</b> (une bande claire derrière les notes), un <b>Texte</b> court au-dessus, un <b>Doigté</b> (en orange, pour ne pas le confondre avec les doigtés gravés) ou une <b>Respiration</b> (une virgule après la dernière note). Trois couleurs : rouge, bleu, vert. La page dessine chaque marque en traits nets, derrière les notes ou dans le blanc au-dessus : rien n'est caché, rien n'est à main levée. Les marques s'accrochent aux notes : elles restent à leur place en pages, en défilement, au pupitre, dans Lecture et dans Méthode. Touche une marque déjà posée pour changer sa couleur ou l'effacer ; « Annuler » défait ton dernier geste ; « Mes notes » les cache ou les montre. Elles sont gardées dans ce navigateur à chaque geste ; dans Réglages, « Sauvegarder mes annotations » en fait un fichier, et « Reprendre une sauvegarde » les remet en place.</p>
 <p>« Mesures … à … » choisit le passage que tu travailles ; s'il ne va pas jusqu'au bout du morceau, il tourne en boucle, à l'écoute comme quand tu joues. « Vitesse » règle le tempo de ce que joue la page. « Points faibles » donne tes mesures les plus difficiles, avec un bouton pour travailler chacune.</p>
 <p>« Ajouter un morceau » charge un fichier qui a été préparé pour cette page (.morceau.json). Pour un nouveau morceau, envoie la partition (un fichier LilyPond de Mutopia, ou un fichier MusicXML que tu as exporté de MuseScore) : elle doit d'abord être préparée.</p>
 <p><b>Les ornements</b> (trille, pincé, mordant, gruppetto, arpège) : quand la page joue, elle les joue en notes, au rythme de la Vitesse ; un accord arpégé part de la note la plus grave jusqu'à la plus aiguë. La trille et le pincé commencent par la note du dessus, comme dans la musique baroque ; le mordant commence par la note écrite (au début de la Toccata en ré mineur : la-sol-la). Quand c'est toi qui joues, la page attend la note écrite ; les notes voisines que tu joues pour l'ornement ne comptent pas comme des fautes, tant qu'elles s'enchaînent vite.</p>
@@ -342,7 +354,7 @@ body:not(.mz) #mzBar{display:none!important}
 <p>Le nom de la note que tu as jouée s'affiche en rouge, avec une phrase qui dit l'écart : combien de crans trop haut ou trop bas, ou la bonne note à la mauvaise octave. Après deux fautes, la bonne touche s'allume en orange sur le clavier.</p>
 <h3>Tes statistiques</h3>
 <p>Tout est enregistré dans ce navigateur, sur cet ordinateur : temps et fautes par note dans les exercices, par mesure dans chaque morceau. L'option « Insister sur mes notes lentes » fait revenir plus souvent tes notes lentes.</p>
-<p class="small" id="version">Version du 26/10/2026, 9 h 57.</p>
+<p class="small" id="version">Version du 26/10/2026, 10 h 40.</p>
 <div class="row" style="margin-top:12px"><span style="flex:1"></span><button id="helpClose" title="Ferme l'aide et revient à ce que tu faisais.">Fermer</button></div>
 </div></div>
 
@@ -928,9 +940,9 @@ this.anim++;clearTimeout(this.nt);const tok=this.anim;requestAnimationFrame(()=>
 const pg=$('pupPg');pg.textContent=(i+1)+' / '+n;pg.title='Écran '+(i+1)+' sur '+n+' (à la taille de ton écran) : '+(b.p2>b.p?'pages '+(b.p+1)+' et '+(b.p2+1):'page '+(b.p+1))+' du PDF.';$('pupA').dataset.i=String(i);this.place(b.hcss||0,$('pupA').clientHeight||1);this.keep()},
 // les lignes de la partition (haut, bas, première mesure) et l'endroit où couper entre deux lignes
 geom(){const svg=$('pupA').querySelector('svg'),vb=svg.viewBox.baseVal,c=new Map(),d=MZ.data;this.V={x:vb.x,y:vb.y,w:vb.width,h:vb.height};
-const stb=[...svg.querySelectorAll('g.st')].map(g=>({b:bboxIn(svg,g,c),k:g.getAttribute('data-sy')})),sp=stb.map(q=>(q.b.y2-q.b.y)/4).sort((a,b)=>a-b),space=sp.length?sp[sp.length>>1]:1,sys={};
+const stb=[...svg.querySelectorAll('g.st')].map(g=>({b:bboxIn(svg,g,c),k:g.getAttribute('data-sy'),f:g.getAttribute('data-sf')})),sp=stb.map(q=>(q.b.y2-q.b.y)/4).sort((a,b)=>a-b),space=sp.length?sp[sp.length>>1]:1,sys={};
 stb.forEach(q=>{const hs=(q.b.y2-q.b.y)/4;if(hs>2.5*space||hs<0.5*space)return;const s=sys[q.k]=sys[q.k]||{id:q.k,top:Infinity,bot:-Infinity,mes:Infinity};s.top=Math.min(s.top,q.b.y);s.bot=Math.max(s.bot,q.b.y2)});
-const S=Object.values(sys).sort((a,b)=>a.top-b.top),ix={};S.forEach((s,i)=>{ix[s.id]=i;s.st0=s.top;s.sb0=s.bot});this.sysOf={};
+const S=Object.values(sys).sort((a,b)=>a.top-b.top),ix={};S.forEach((s,i)=>{ix[s.id]=i;s.st0=s.top;s.sb0=s.bot});this.sysOf={};this.stf={};stb.forEach(q=>{const i=ix[q.k];if(i!==undefined)this.stf[i+'_'+q.f]={top:q.b.y,bot:q.b.y2}});
 svg.querySelectorAll('g.nh[data-n]').forEach(g=>{const n=+g.getAttribute('data-n'),i=ix[g.getAttribute('data-sy')];if(i===undefined||!d.notes[n])return;if(this.sysOf[n]===undefined)this.sysOf[n]=i;const b=bboxIn(svg,g,c),s=S[i];if(b.x2-b.x>0&&b.y2-b.y>0&&b.y>s.st0-12*space&&b.y2<s.sb0+12*space){s.top=Math.min(s.top,b.y);s.bot=Math.max(s.bot,b.y2)}const ms=d.mesures[d.notes[n][0]]||0;if(ms<s.mes)s.mes=ms});
 S.forEach((s,i)=>{if(!isFinite(s.mes))s.mes=i?S[i-1].mes:0});
 const iv=[],ink=[];svg.querySelectorAll('path,line,rect,polygon,polyline,text,ellipse,circle,use').forEach(el=>{if(el===this.cover)return;let b;try{b=el.getBBox()}catch(e){return}if(!b.width&&!b.height)return;const q=bboxIn(svg,el,c);iv.push([q.y,q.y2]);if(q.x2-q.x<4*space)ink.push([q.x,q.x2,q.y,q.y2])});this.inkP=ink;
@@ -939,7 +951,7 @@ const cuts=MZ.cutsFrom(S,iv);S.forEach((s,i)=>{s.cutTop=i===0?this.V.y:cuts[i-1]
 S.forEach(s=>{let lo=-Infinity;for(const q of iv)if(q[1]<=s.cutBot+1e-6&&q[1]>lo)lo=q[1];s.padBot=isFinite(lo)?Math.max(0,s.cutBot-lo):0});this.S=S;
 // la hauteur de chaque morceau de la gravure (pour ne mettre dans une page que ce qui s'y voit)
 this.sp=space;this.nhb={};svg.querySelectorAll('g.nh[data-n]').forEach(g=>{const n=g.getAttribute('data-n');try{const q=bboxIn(svg,g,c);if(q.x2>q.x&&q.y2>q.y)(this.nhb[n]=this.nhb[n]||[]).push(q)}catch(e){}});
-this.kids=[...svg.children].filter(k=>k.tagName!=='style').map(k=>{let q=null;try{q=bboxIn(svg,k,c)}catch(e){}return{el:k,y:q?q.y:-Infinity,y2:q?q.y2:Infinity,x2:q?q.x2:-Infinity}})},
+this.kids=[...svg.children].filter(k=>k.tagName!=='style').map(k=>{let q=null;try{q=bboxIn(svg,k,c)}catch(e){}return{el:k,y:q?q.y:-Infinity,y2:q?q.y2:Infinity,x:q?q.x:Infinity,x2:q?q.x2:-Infinity}})},
 // pages : autant de lignes entières qu'en tient l'écran, moins la bande des boutons en bas ; chaque page commence par la ligne qui suit
 // la dernière ligne de la page d'avant (rien de répété, rien de sauté)
 blocks(){const A=$('pupA'),pw=A.clientWidth||1,ph=A.clientHeight||1,res=($('pupBar').offsetHeight||34)+12,cap=this.V.w*Math.max(ph/2,ph-res)/pw,S=this.S,B=[];let i=0;
@@ -988,7 +1000,7 @@ this.pgs=this.B.map(b=>{const lb=S[b.b],cy=b.b<S.length-1?Math.max(b.y0+Math.flo
 // une ligne trop large pour la page (gravure qui déborde à droite) : cette page-là est réduite juste assez pour la montrer en entier
 let xm=this.V.x+this.V.w;for(const q of this.kids)if(q.y2>b.y0&&q.y<cy&&isFinite(q.x2)&&q.x2+1>xm)xm=q.x2+1;const W=xm-this.V.x,Hp=H*W/this.V.w;
 const sv=document.createElementNS(NS,'svg');sv.setAttribute('class','pg');sv.setAttribute('viewBox',this.V.x+' '+b.y0+' '+W+' '+Hp);sv.setAttribute('preserveAspectRatio','xMidYMin meet');sv.style.height=ph+'px';sv.style.display='none';
-if(st)sv.appendChild(st.cloneNode(true));for(const q of this.kids)if(q.y2>b.y0&&q.y<cy)sv.appendChild(q.el.cloneNode(true));this.mainVue(sv);this.doigts(sv,b.y0,cy);this.nomsP(sv,b.y0,cy);
+if(st)sv.appendChild(st.cloneNode(true));for(const q of this.kids)if(q.y2>b.y0&&q.y<cy)sv.appendChild(q.el.cloneNode(true));this.mainVue(sv);this.doigts(sv,b.y0,cy);this.nomsP(sv,b.y0,cy);ANN.drawPup(sv,b.y0,cy);
 const cv=document.createElementNS(NS,'rect');cv.setAttribute('class','pcv');cv.setAttribute('fill','#ffffff');cv.setAttribute('x',this.V.x-10);cv.setAttribute('width',W+20);cv.setAttribute('y',cy);cv.setAttribute('height',Hp+10);sv.appendChild(cv);A.appendChild(sv);return sv})},
 // montre la page i, d'un coup : elle passe devant (la suivante et la précédente sont déjà dessinées derrière elle) ;
 // puis, l'image d'après, on dessine ses voisines à leur tour, derrière
@@ -1278,6 +1290,118 @@ $('pcOnOff').textContent=this.on?'Éteindre la caméra':'Allumer la caméra';$('
 const es=$('pcEssai');es.textContent=this.essai?'Arrêter l\'essai':'Essai des gestes';es.disabled=!this.essai&&!(this.on&&this.lib&&!this.cal&&!this.mcal&&C);if(this.essai)$('pcSt').textContent=this.status},
 placePanel(){const P=$('pupCam'),bar=$('pupBar');if(bar.style.bottom==='6px'){P.style.top='auto';P.style.bottom=(bar.offsetHeight+12)+'px'}else{P.style.bottom='auto';P.style.top=(bar.offsetTop+bar.offsetHeight+6)+'px'}}
 };
+// ===== Annotations : tes marques sur la partition (entourer, souligner, surligner, texte, doigté, respiration). Elles s'accrochent aux notes,
+// pas à l'écran : même place en défilement, en pages, au pupitre (paysage ou portrait), à toute taille. La page les dessine en traits nets : jamais de main levée.
+// Gardées à chaque geste dans le navigateur (lectureClavier.annot : une liste par morceau), suivies d'un onglet à l'autre et entre Lecture et Méthode.
+const LSA='lectureClavier.annot';
+const ANN={on:false,all:{},sel:null,pending:null,undo:[],
+COUL:{r:'#D0312D',b:'#1F5FBF',v:'#1E8E3E'},NOMC:{r:'rouge',b:'bleu',v:'vert'},DOIGT:'#C2410C',
+NOMT:{entoure:'Entouré',souligne:'Souligné',surligne:'Surligné',texte:'Texte',doigte:'Doigté',resp:'Respiration'},
+load(){try{const o=JSON.parse(localStorage.getItem(LSA)||'{}');this.all=o&&typeof o==='object'?o:{}}catch(e){this.all={}}},
+save(){lsPut(LSA,JSON.stringify(this.all))},
+list(){return(MZ.id&&this.all[MZ.id])||[]},
+setList(L){if(!MZ.id)return;if(L.length)this.all[MZ.id]=L;else delete this.all[MZ.id];this.save()},
+// la consigne s'écrit sous la partition, à la place de « Joue la note en bleu » (une ligne qui ne bouge pas : la partition ne saute pas entre deux touchers)
+dire(a,b){if(!this.avant)this.avant=[$('big').textContent,$('big').className,$('fb1').textContent,$('fb2').textContent];$('big').textContent='';$('big').className='';$('fb1').textContent=a;$('fb2').textContent=b||''},
+rendre(){const A=this.avant;this.avant=null;if(!A)return;$('big').textContent=A[0];$('big').className=A[1];$('fb1').textContent=A[2];$('fb2').textContent=A[3]},
+consigne(){this.dire('Annoter : touche la première note du passage.','Puis la dernière. Pour changer une marque déjà posée, touche-la.')},
+// les notes d'une marque : celles des portées touchées (la portée de la première note et celle de la dernière), entre les deux moments
+notesOf(m){const d=MZ.data;if(!d||!d.notes[m.a]||!d.notes[m.b])return[];const ma=Math.min(d.notes[m.a][0],d.notes[m.b][0]),mb=Math.max(d.notes[m.a][0],d.notes[m.b][0]),P=m.parts||[d.notes[m.a][2]],out=[];
+d.notes.forEach((n,j)=>{if(n[0]>=ma&&n[0]<=mb&&P.indexOf(n[2])>=0)out.push(j)});return out},
+pseudo(a,b){const d=MZ.data;return{a:a,b:b,parts:[...new Set([d.notes[a][2],d.notes[b][2]])]}},
+// un morceau de marque par ligne de la partition : la boîte des têtes de notes de cette ligne
+// (et le bas de la portée la plus basse touchée : le souligné passe sous la portée, jamais sur une ligne)
+segs(m,V){const by={};this.notesOf(m).forEach(j=>{(V.box(j)||[]).forEach(b=>{const k=V.sys(j,b);const s=by[k]=by[k]||{x:Infinity,y:Infinity,x2:-Infinity,y2:-Infinity,sb:-Infinity};s.x=Math.min(s.x,b.x);s.y=Math.min(s.y,b.y);s.x2=Math.max(s.x2,b.x2);s.y2=Math.max(s.y2,b.y2);const q=V.stf(j,b);if(q)s.sb=Math.max(s.sb,q.bot)})});
+return Object.values(by).sort((p,q)=>p.y-q.y||p.x-q.x)},
+// la largeur d'un texte (même police que sur la partition)
+larg(txt,font,fs){const c=this.cv||(this.cv=document.createElement('canvas').getContext('2d'));c.font=font;return c.measureText(txt).width/100*fs},
+// une vue : la partition de l'écran, ou une page du pupitre (gravure paysage ou portrait). Chacune dit où sont les notes, les portées et l'encre.
+vueMain(){const sp=MZ.space||1,st=(j,b)=>MZ.stf&&MZ.stf[b.sy+'_'+b.sf];return{sv:MZ.svg,sp:sp,box:j=>MZ.hp[j],sys:(j,b)=>b.sy,stf:st,
+ dessus:(j,b)=>{let u=-Infinity;const me=st(j,b);if(me)Object.keys(MZ.stf).forEach(k=>{const q=MZ.stf[k];if(k.split('_')[0]===String(b.sy)&&q!==me&&q.bot<=me.top)u=Math.max(u,q.bot)});return u},
+ libre:(x0,x1,ya,yb,dur)=>!MZ.inkIn(x0,x1,ya,yb).some(q=>!dur||q[4])}},
+vuePup(sv,y0,y1){const d=MZ.data,sp=PUP.sp||1,st=j=>PUP.stf&&d.notes[j]&&PUP.stf[PUP.sysOf[j]+'_'+d.notes[j][2]];return{sv:sv,sp:sp,y0:y0,y1:y1,box:j=>PUP.nhb[j],sys:j=>PUP.sysOf[j],stf:j=>st(j),
+ dessus:j=>{let u=-Infinity;const me=st(j),i=PUP.sysOf[j];if(me)Object.keys(PUP.stf).forEach(k=>{const q=PUP.stf[k];if(k.split('_')[0]===String(i)&&q!==me&&q.bot<=me.top)u=Math.max(u,q.bot)});return u},
+ libre:(x0,x1,ya,yb,dur)=>!(PUP.kids||[]).some(k=>k.x2>x0&&k.x<x1&&k.y2>ya&&k.y<yb&&!(k.el.classList&&k.el.classList.contains('st'))&&(!dur||(k.x2-k.x<=2.6*sp&&k.y2-k.y<=3.2*sp)))}},
+// derrière les notes : cadres, soulignés, fluo ; dans le blanc au-dessus de la portée : texte, doigté, respiration (avec un liseré blanc)
+// texte et doigté : la place la plus proche au-dessus de la portée où rien n'est gravé (comme les noms des notes) ; sinon, où il n'y a que hampes, barres ou liaisons
+// vise : la note ou le passage en train d'être choisi, en pointillé
+draw(V,vise){const sv=V.sv;if(!sv)return;sv.querySelectorAll('g.annots').forEach(g=>g.remove());const L=this.list();if(!L.length&&vise==null)return;
+const NS='http://www.w3.org/2000/svg',back=document.createElementNS(NS,'g'),front=document.createElementNS(NS,'g');back.setAttribute('class','annots');front.setAttribute('class','annots annots-devant');
+const sp=V.sp,y0=V.y0,y1=V.y1,inY=s=>y0===undefined||(s.y2>y0&&s.y<y1),f=v=>(+v).toFixed(3),halo='stroke="#ffffff" stroke-width="'+f(0.45*sp)+'" paint-order="stroke" stroke-linejoin="round"',occ=[];let hb='',hf='';
+const place=(j,b,x0,w,fs)=>{const s=V.stf(j,b),top=Math.min(s?s.top:b.y,b.y),haut=Math.max(V.dessus(j,b)+0.3*sp,top-6*sp,y0===undefined?-Infinity:y0+0.2*sp),asc=0.78*fs,des=0.24*fs,H=asc+des;
+ for(const dur of [false,true])for(let yb=top-0.25*sp;yb-H>=haut-1e-6;yb-=0.25*sp){const ya=yb-H;if(occ.some(o=>o[1]>x0&&o[0]<x0+w&&o[3]>ya&&o[2]<yb))continue;if(V.libre(x0-0.1*sp,x0+w+0.1*sp,ya,yb,dur)){occ.push([x0,x0+w,ya,yb]);return yb-des}}
+ const yb=top-0.25*sp;occ.push([x0,x0+w,yb-H,yb]);return yb-des};
+L.forEach(m=>{const c=this.COUL[m.c]||this.COUL.r,id=esc(m.id),S=this.segs(m,V).filter(inY);if(!S.length)return;
+if(m.t==='entoure')S.forEach(s=>{const p=0.55*sp;hb+='<rect data-ann="'+id+'" x="'+f(s.x-p)+'" y="'+f(s.y-p)+'" width="'+f(s.x2-s.x+2*p)+'" height="'+f(s.y2-s.y+2*p)+'" rx="'+f(0.9*sp)+'" fill="none" stroke="'+c+'" stroke-width="'+f(0.17*sp)+'"/>'});
+else if(m.t==='souligne')S.forEach(s=>{const y=Math.max(s.y2,s.sb)+0.9*sp;hb+='<line data-ann="'+id+'" x1="'+f(s.x-0.2*sp)+'" x2="'+f(s.x2+0.2*sp)+'" y1="'+f(y)+'" y2="'+f(y)+'" stroke="'+c+'" stroke-width="'+f(0.24*sp)+'" stroke-linecap="round"/>'});
+else if(m.t==='surligne')S.forEach(s=>{const p=0.4*sp;hb+='<rect data-ann="'+id+'" x="'+f(s.x-p)+'" y="'+f(s.y-p)+'" width="'+f(s.x2-s.x+2*p)+'" height="'+f(s.y2-s.y+2*p)+'" rx="'+f(0.45*sp)+'" fill="'+c+'" fill-opacity="0.2"/>'});
+else if(m.t==='resp'){const e=S[S.length-1];hf+='<text data-ann="'+id+'" x="'+f(e.x2+0.6*sp)+'" y="'+f(e.y-0.3*sp)+'" font-size="'+f(3.2*sp)+'" font-weight="700" font-family="serif" fill="'+c+'" '+halo+'>’</text>'}
+else{const b=(V.box(m.a)||[]).filter(inY)[0];if(!b)return;const txt=m.txt||'';
+ if(m.t==='texte'){const fs=1.9*sp,w=this.larg(txt,'italic 100px system-ui,sans-serif',fs),y=place(m.a,b,b.x,w,fs);hf+='<text data-ann="'+id+'" x="'+f(b.x)+'" y="'+f(y)+'" font-size="'+f(fs)+'" font-style="italic" font-family="system-ui,sans-serif" fill="'+c+'" '+halo+'>'+esc(txt)+'</text>'}
+ else if(m.t==='doigte'){const fs=2*sp,w=this.larg(txt,'bold 100px system-ui,sans-serif',fs),cx=(b.x+b.x2)/2,y=place(m.a,b,cx-w/2,w,fs);hf+='<text data-ann="'+id+'" x="'+f(cx)+'" y="'+f(y)+'" text-anchor="middle" font-size="'+f(fs)+'" font-weight="700" font-family="system-ui,sans-serif" fill="'+this.DOIGT+'" '+halo+'>'+esc(txt)+'</text>'}}});
+if(vise!=null){const col=this.COUL[cfg.annC]||this.COUL.r,S=typeof vise==='object'?this.segs(vise,V):(V.box(vise)||[]);
+ S.filter(inY).forEach(b=>{const p=0.6*sp;hf+='<rect class="annots-vise" x="'+f(b.x-p)+'" y="'+f(b.y-p)+'" width="'+f(b.x2-b.x+2*p)+'" height="'+f(b.y2-b.y+2*p)+'" rx="'+f(0.6*sp)+'" fill="none" stroke="'+col+'" stroke-width="'+f(0.16*sp)+'" stroke-dasharray="'+f(0.5*sp)+' '+f(0.35*sp)+'"/>'})}
+back.innerHTML=hb;front.innerHTML=hf;const st=sv.querySelector('style');sv.insertBefore(back,st?st.nextSibling:sv.firstChild);const cv=sv.querySelector('rect.pcv');if(cv)sv.insertBefore(front,cv);else sv.appendChild(front)},
+vise(){return this.pending?this.pseudo(this.pending.a,this.pending.b):this.sel!==null?this.sel:null},
+drawMain(){if(!MZ.svg||!MZ.hp)return;if(MZ.id!==this.pid){this.pid=MZ.id;this.sel=null;this.pending=null;this.hideBar()}this.draw(this.vueMain(),this.vise())},
+drawPup(sv,y0,y1){if(!PUP.nhb||PUP.pdf||!MZ.data)return;this.draw(this.vuePup(sv,y0,y1),null)},
+refresh(){this.drawMain();if(PUP.on&&!PUP.pdf&&PUP.pgs&&PUP.B)PUP.pgs.forEach((p,k)=>{const B=PUP.B[k];if(B&&p&&p.tagName&&p.tagName.toLowerCase()==='svg')this.drawPup(p,B.y0,B.cy)});document.documentElement.classList.toggle('annots-cachees',cfg.annVis===false)},
+// les marques sous le doigt (sur la partition principale)
+hits(cx,cy){const sv=MZ.svg;if(!sv||!MZ.hp)return[];const ctm=sv.getScreenCTM();if(!ctm)return[];const pt=sv.createSVGPoint();pt.x=cx;pt.y=cy;const u=pt.matrixTransform(ctm.inverse()),sp=MZ.space||1,out=[];
+const dans=(x,y,x2,y2)=>u.x>=x&&u.x<=x2&&u.y>=y&&u.y<=y2;
+this.list().forEach(m=>{if(m.t==='texte'||m.t==='doigte'||m.t==='resp'){const el=sv.querySelector('g.annots [data-ann="'+CSS.escape(m.id)+'"]');if(!el)return;let b;try{b=el.getBBox()}catch(e){return}const p=0.5*sp;if(dans(b.x-p,b.y-p,b.x+b.width+p,b.y+b.height+p))out.push({m:m,devant:true});return}
+const S=this.segs(m,this.vueMain());if(S.some(s=>m.t==='souligne'?dans(s.x-0.4*sp,s.y,s.x2+0.4*sp,Math.max(s.y2,s.sb)+1.7*sp):dans(s.x-sp,s.y-sp,s.x2+sp,s.y2+sp)))out.push({m:m,devant:false})});return out},
+desc(m){const d=MZ.data,ma=d.mesures[d.notes[m.a][0]]+1,mb=d.mesures[d.notes[m.b][0]]+1;return this.NOMT[m.t]+(m.txt?' « '+m.txt+' »':'')+' · '+(ma===mb?'mesure '+ma:'mesures '+ma+' à '+mb)+(m.t==='doigte'?'':' · '+(this.NOMC[m.c]||'rouge'))},
+// le geste : « Annoter » allumé, toucher la première note puis la dernière (la même pour une seule note), puis choisir la marque
+click(e){if(!MZ.data)return;const H=this.hits(e.clientX,e.clientY);
+if(this.sel===null){const dv=H.find(h=>h.devant);if(dv){this.pending=null;this.drawMain();this.bar('edit',e.clientX,e.clientY,dv.m.id);return}}
+const j=MZ.noteAt(e.clientX,e.clientY);
+if(j===null||j===undefined){if(this.sel===null&&H.length){this.pending=null;this.drawMain();this.bar('edit',e.clientX,e.clientY,H[0].m.id)}return}
+if(this.sel===null){this.pending=null;this.sel=+j;this.drawMain();this.dire('Touche la dernière note du passage.','La même pour une seule note ; une note de l\'autre portée pour prendre les deux portées. Échap ou « Annoter » : abandonner.');if(H.length)this.bar('debut',e.clientX,e.clientY,null,H.map(h=>h.m));else this.hideBar();return}
+this.pending={a:this.sel,b:+j};this.sel=null;this.drawMain();this.dire('Choisis la marque.','Les notes en pointillé seront marquées.');this.bar('choix',e.clientX,e.clientY)},
+add(t,txt){const p=this.pending,d=MZ.data;if(!p||!d)return;let a=p.a,b=p.b;if(d.notes[b][0]<d.notes[a][0]){const x=a;a=b;b=x}
+const m={id:'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),t:t,a:a,b:b,parts:[...new Set([d.notes[a][2],d.notes[b][2]])],c:cfg.annC||'r',txt:txt||'',ts:Date.now()};
+const L=this.list().slice();L.push(m);this.pending=null;this.hideBar();this.setList(L);this.undo.push({k:'add',id:m.id,piece:MZ.id});this.refresh();syncUI();if(this.on)this.consigne();
+JRN.add('annotation',{quoi:'marque posée',type:t,mesure:d.mesures[d.notes[a][0]]+1,jusqua:d.mesures[d.notes[b][0]]+1,couleur:t==='doigte'?'orange':this.NOMC[m.c],texte:txt||undefined})},
+del(id){const L=this.list(),i=L.findIndex(m=>m.id===id);if(i<0)return;const m=L[i];this.setList(L.filter(x=>x.id!==id));this.undo.push({k:'del',m:m,piece:MZ.id});this.hideBar();this.refresh();syncUI();JRN.add('annotation',{quoi:'marque effacée',type:m.t})},
+couleur(id,c){const L=this.list().slice(),m=L.find(x=>x.id===id);if(!m)return;if(m.c!==c){this.undo.push({k:'coul',id:id,c:m.c,piece:MZ.id});m.c=c;this.setList(L);JRN.add('annotation',{quoi:'couleur changée',type:m.t,couleur:this.NOMC[c]})}this.hideBar();this.refresh();syncUI()},
+peutAnnuler(){return this.undo.some(u=>u.piece===MZ.id)},
+annuler(){let i=-1;for(let k=this.undo.length-1;k>=0;k--)if(this.undo[k].piece===MZ.id){i=k;break}if(i<0)return;const u=this.undo.splice(i,1)[0];let L=this.list().slice();
+if(u.k==='add')L=L.filter(m=>m.id!==u.id);else if(u.k==='del'){if(!L.some(m=>m.id===u.m.id))L.push(u.m)}else if(u.k==='coul'){const m=L.find(x=>x.id===u.id);if(m)m.c=u.c}
+this.setList(L);this.sel=null;this.pending=null;this.hideBar();this.refresh();syncUI();if(this.on)this.consigne();JRN.add('annotation',{quoi:'annulé',geste:u.k==='add'?'pose':u.k==='del'?'effacement':'couleur'})},
+toggle(){this.on=!this.on;this.stop();if(this.on&&cfg.annVis===false){cfg.annVis=true;save();this.refresh()}if(this.on)this.consigne();else this.rendre();syncUI();JRN.add('annotation',{quoi:this.on?'annoter allumé':'annoter éteint'})},
+stop(){const v=this.sel!==null||!!this.pending;this.sel=null;this.pending=null;this.hideBar();this.drawMain();if(this.on)this.consigne()},
+hideBar(){const B=$('annBar');if(B)B.hidden=true},
+bar(kind,cx,cy,id,ici){const B=$('annBar'),C=this.COUL,cur=cfg.annC||'r';let h='';
+const pastille=k=>'<span style="display:inline-block;width:12px;height:12px;border-radius:6px;background:'+C[k]+';vertical-align:-1px"></span> ';
+const coul=(act,cm)=>'<div class="r">Couleur : '+Object.keys(C).map(k=>'<button data-'+act+'="'+k+'" aria-pressed="'+(act==='c'?k===cur:k===cm)+'" title="'+(act==='c'?'Les marques que tu poses sont en '+this.NOMC[k]+', jusqu\'à ce que tu changes.':'Met cette marque en '+this.NOMC[k]+'.')+'">'+pastille(k)+this.NOMC[k]+'</button>').join('')+'</div>';
+const annul='<button data-x="1" title="Abandonne cette marque : rien n\'est posé. « Annoter » reste allumé.">Abandonner</button>';
+if(kind==='debut'){h='<div class="t">Une marque est déjà là</div><div>Touche la dernière note du passage pour une nouvelle marque, ou change celle-ci :</div>';
+ if(ici&&ici.length)h+='<div class="r">'+ici.map(m=>'<button data-ed="'+esc(m.id)+'" title="Ouvre cette marque pour changer sa couleur ou l\'effacer.">'+esc(this.desc(m))+'</button>').join('')+'</div>';
+ h+='<div class="r">'+annul+'</div>'}
+else if(kind==='choix')h='<div class="t">Quelle marque ?</div><div class="r"><button data-t="entoure" title="Un cadre arrondi autour des notes en pointillé, derrière elles : il ne cache rien.">Entourer</button><button data-t="souligne" title="Un trait sous les notes en pointillé.">Souligner</button><button data-t="surligne" title="Une bande claire derrière les notes en pointillé, comme un fluo : elle ne cache rien.">Surligner</button><button data-t="resp" title="Une respiration (une virgule) juste après la dernière note en pointillé : tu lèves les doigts là, comme le veut Dupré.">Respiration</button></div>'
+ +'<div class="r">Texte : <input id="annTxt" maxlength="30" style="width:150px" placeholder="Récit, lent, respirer…" title="Quelques mots (30 lettres au plus), écrits au-dessus de la première note. Entrée ou « Poser » les écrit."><button data-t="texte" title="Écrit ce texte au-dessus de la première note.">Poser</button></div>'
+ +'<div class="r">Doigté : '+[1,2,3,4,5].map(x=>'<button data-dg="'+x+'" title="Écrit le doigt '+x+' au-dessus de la première note, en orange, pour ne pas le confondre avec les doigtés gravés.">'+x+'</button>').join('')+'</div>'+coul('c')+'<div class="r">'+annul+'</div>';
+else{const m=this.list().find(x=>x.id===id);if(!m){this.hideBar();return}h='<div class="t">'+esc(this.desc(m))+'</div>'+(m.t==='doigte'?'':coul('cm',m.c))+'<div class="r"><button data-del="1" title="Efface cette marque. « Annuler », dans la barre, la fait revenir.">Effacer</button><button data-f="1" title="Ferme sans rien changer.">Fermer</button></div>'}
+// la barre : dans le coin de la partition opposé à la note touchée (elle ne couvre ni le passage choisi, ni la suite)
+B.innerHTML=h;B.hidden=false;const box=$('scoreBox').getBoundingClientRect();B.style.left='0px';B.style.top='0px';const pw=B.offsetWidth,ph=B.offsetHeight,vt=Math.max(0,-box.top),vb=Math.min(box.height,innerHeight-box.top);
+const x=cx-box.left<box.width/2?Math.max(6,box.width-pw-8):8,y=cy-box.top<(vt+vb)/2?Math.max(vt+6,vb-ph-8):vt+8;B.style.left=x+'px';B.style.top=y+'px';
+const inp=$('annTxt');if(inp){['keydown','keyup','keypress'].forEach(ev=>inp.addEventListener(ev,e=>{e.stopPropagation();if(ev==='keydown'&&e.key==='Enter'){e.preventDefault();const v=inp.value.trim();if(v)this.add('texte',v)}if(ev==='keydown'&&e.key==='Escape'){this.stop()}}))}
+B.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const s=b.dataset;
+if(s.x){this.stop();return}if(s.f){this.hideBar();return}if(s.del){this.del(id);return}if(s.cm){this.couleur(id,s.cm);return}
+if(s.ed){this.sel=null;this.pending=null;this.drawMain();this.bar('edit',cx,cy,s.ed);return}
+if(s.c){cfg.annC=s.c;save();B.querySelectorAll('button[data-c]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.c===s.c?'true':'false'));this.drawMain();return}
+if(s.dg){this.add('doigte',s.dg);return}if(s.t==='texte'){const v=(($('annTxt')||{}).value||'').trim();if(!v){$('annTxt').focus();return}this.add('texte',v);return}if(s.t)this.add(s.t)}))},
+// sauvegarde dans un fichier, et reprise d'un fichier (les marques reprises s'ajoutent ; une même marque n'est jamais en double)
+exporter(){const n=Object.values(this.all).reduce((a,L)=>a+L.length,0);if(!n){fb('','','Aucune annotation à sauvegarder pour l\'instant.','');return}
+const blob=new Blob([JSON.stringify({type:'annotations-lecture-clavier',v:1,date:new Date().toISOString(),annotations:this.all},null,1)],{type:'application/json'});
+const a=document.createElement('a');a.href=URL.createObjectURL(blob);const d=new Date(),p=x=>String(x).padStart(2,'0');a.download='annotations-'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+fb('','',n+' marque'+(n>1?'s':'')+' sauvegardée'+(n>1?'s':'')+' dans un fichier.','Dans Téléchargements. « Reprendre une sauvegarde » les remet en place.');JRN.add('annotation',{quoi:'sauvegarde',marques:n})},
+async importer(file){let o;try{o=JSON.parse(await file.text())}catch(e){o=null}const A=o&&o.type==='annotations-lecture-clavier'&&o.annotations;
+if(!A||typeof A!=='object'){fb('','bad','Ce fichier n\'est pas une sauvegarde d\'annotations.','Choisis un fichier « annotations-….json » fait par « Sauvegarder mes annotations ».');return}
+let n=0;Object.keys(A).forEach(id=>{if(!Array.isArray(A[id]))return;const L=this.all[id]=this.all[id]||[];A[id].forEach(m=>{if(m&&m.id&&m.t&&this.NOMT[m.t]&&Number.isInteger(m.a)&&Number.isInteger(m.b)&&!L.some(x=>x.id===m.id)){L.push(m);n++}});if(!L.length)delete this.all[id]});this.save();this.refresh();syncUI();
+fb('','',n?(n+' marque'+(n>1?'s':'')+' remise'+(n>1?'s':'')+' en place.'):'Rien à reprendre : toutes ces marques sont déjà là.','');JRN.add('annotation',{quoi:'reprise',marques:n})}};
+ANN.load();
 const MZ={list:[],id:null,data:null,svg:null,vb:null,els:{},moms:[],sys:[],pages:[],page:-1,k:0,k0:0,k1:0,waiting:false,ended:false,pressed:new Set(),errs:0,t0:0,timer:null,voices:new Map(),st:null,band:null,loadTok:0,
 async init(){let lib=[];try{lib=JSON.parse($('lib').textContent)}catch(e){}
 this.builtin=lib.filter(p=>PAGE==='methode'?!!p.exo:!p.exo).map(p=>Object.assign({},p,{fourni:true}));
@@ -1319,10 +1443,10 @@ this.stf={};stb.forEach(q=>{const hs=(q.b.y2-q.b.y)/4;if(hs>2.5*this.space||hs<0
 const hc=new Map();this.hp={};Object.keys(this.els).forEach(n=>{this.hp[n]=this.els[n].map(g=>{const b=bboxIn(svg,g,hc);return{x:b.x,y:b.y,x2:b.x2,y2:b.y2,cx:(b.x+b.x2)/2,cy:(b.y+b.y2)/2,sy:g.getAttribute('data-sy'),sf:this.data.notes[n][2]}})});
 const pos={};Object.keys(this.els).forEach(n=>{const g=this.els[n][0],b=bboxIn(svg,g),i=near((b.y+b.y2)/2);pos[n]={x:(b.x+b.x2)/2,si:i};const S=list[i];if(S){S.top=Math.min(S.top,b.y);S.bot=Math.max(S.bot,b.y2)}});
 this.moms.forEach(m=>{let x=Infinity,s=null;m.notes.forEach(j=>{const q=pos[j];if(q){x=Math.min(x,q.x);if(s===null)s=q.si}});m.x=x;m.sy=s===null?0:s});
-const V=this.vb,cuts=this.corridors(list);list.forEach((s,i)=>{s.cutTop=i===0?V.y:cuts[i-1];s.cutBot=i===list.length-1?V.y+V.h:cuts[i]});
+const V=this.vb,cuts=this.corridors(list);list.forEach((s,i)=>{s.cutTop=i===0?V.y:cuts[i-1];s.cutBot=i===list.length-1?V.y+V.h:cuts[i]});ANN.drawMain();
 this.paginate()},
 corridors(list){const svg=this.svg,cache=new Map(),iv=[];
-const ink=[];svg.querySelectorAll('path,line,rect,polygon,polyline,text,ellipse,circle,use').forEach(el=>{if(el===this.band||(this.nomsG&&this.nomsG.contains(el))||(this.decoG&&this.decoG.contains(el))||(this.haloG&&this.haloG.contains(el)))return;let b;try{b=el.getBBox()}catch(e){return}if(!b.width&&!b.height)return;const q=bboxIn(svg,el,cache);iv.push([q.y,q.y2]);const sp=this.space||1,w=q.x2-q.x,h=q.y2-q.y;ink.push([q.x,q.x2,q.y,q.y2,w<=2.6*sp&&h<=3.2*sp&&!(w<0.35*sp&&h>1.6*sp)])});
+const ink=[];svg.querySelectorAll('path,line,rect,polygon,polyline,text,ellipse,circle,use').forEach(el=>{if(el===this.band||el.closest('g.annots')||(this.nomsG&&this.nomsG.contains(el))||(this.decoG&&this.decoG.contains(el))||(this.haloG&&this.haloG.contains(el)))return;let b;try{b=el.getBBox()}catch(e){return}if(!b.width&&!b.height)return;const q=bboxIn(svg,el,cache);iv.push([q.y,q.y2]);const sp=this.space||1,w=q.x2-q.x,h=q.y2-q.y;ink.push([q.x,q.x2,q.y,q.y2,w<=2.6*sp&&h<=3.2*sp&&!(w<0.35*sp&&h>1.6*sp)])});
 const B=2*(this.space||1),BY=4*(this.space||1),idx=new Map();ink.forEach((q,i)=>{for(let c=Math.floor(q[0]/B);c<=Math.floor(q[1]/B);c++)for(let r=Math.floor(q[2]/BY);r<=Math.floor(q[3]/BY);r++){const key=c*1048576+r+4096;let a=idx.get(key);if(!a)idx.set(key,a=[]);a.push(i)}});this.ink=ink;this.inkIdx=idx;this.inkB=B;this.inkBY=BY;
 this.iv=iv;return this.cutsFrom(list,iv)},
 // Coupe entre deux lignes : l'endroit du couloir traversé par le moins de choses (notes, signes, noms, doigtés), le plus près du milieu
@@ -1700,7 +1824,7 @@ function syncUI(){document.querySelectorAll('[data-mode]').forEach(b=>b.setAttri
 document.querySelectorAll('[data-z]').forEach(b=>b.setAttribute('aria-pressed',!!cfg.zones[b.getAttribute('data-z')]));
 $('acc').setAttribute('aria-pressed',!!cfg.acc);$('insist').setAttribute('aria-pressed',!!cfg.insist);
 $('carte').value=cfg.carte;$('carteWrap').style.display=cfg.mode==='defile'?'':'none';
-const mz=cfg.mode==='morceau';document.body.classList.toggle('mz',mz);{const c=$('mzConsigne');c.hidden=!(mz&&MZ.data&&MZ.data.consigne)}$('mzRestart').hidden=!mz;$('mzPlay').hidden=!mz;$('mzPedal').hidden=!mz;$('mzSonWrap').hidden=!mz;['mzPrev','mzNext','mzLearn','mzNoms','mzSet','mzPdf','mzPup','mzJeux','pageInfo','micRow'].forEach(id=>{$(id).hidden=!mz});$('mzPdf').setAttribute('aria-pressed',mz&&cfg.pdfRow?'true':'false');$('pdfRow').hidden=!(mz&&cfg.pdfRow);$('pdfAng').checked=cfg.pdfAng!==false;$('mzRepEnd').hidden=!(mz&&MZ.part);{const pr=$('mzPrev'),nx=$('mzNext');if(MZ.part){pr.textContent='◀ Note';nx.textContent='Note ▶';pr.title='Recule d\'un accord dans la répartition, sans rien changer : rejoue sa main droite pour le corriger. Garde le bouton enfoncé pour reculer vite. La pédale de gauche fait la même chose.';nx.title='Avance d\'un accord dans la répartition, sans rien changer. Garde le bouton enfoncé pour avancer vite. La pédale du milieu fait la même chose.'}else{pr.textContent='◀ Mesure';nx.textContent='Mesure ▶';pr.title=pr.dataset.t||pr.title;nx.title=nx.dataset.t||nx.title}}pill();const setVis=mz&&cfg.mzSet&&!(MZ.part&&MZ.part.fold);$('mzSet').setAttribute('aria-pressed',setVis?'true':'false');$('mzOrgWrap').hidden=!(mz&&cfg.son==='piano');$('mzTuyWrap').hidden=!(mz&&cfg.son!=='piano');['mzSortieWrap','mzCaler','mzCalV'].forEach(id=>{$(id).hidden=!(mz&&cfg.son!=='piano')});if(document.activeElement!==$('mzSortie'))$('mzSortie').value=cfg.sortieBT?'1':'0';$('mzCalV').textContent=calTexte();$('mzCalV').title='Le décalage entre la note jouée par l\'ordinateur et le son que tu entends, pour cette sortie. « Caler la barre sur le son » le mesure.';if(document.activeElement!==$('mzTuy'))$('mzTuy').value=cfg.tuyaux===false?'0':'1';$('mzOrgV').textContent=cfg.orgPc;$('mzLearn').setAttribute('aria-pressed',cfg.learn?'true':'false');$('mzNoms').setAttribute('aria-pressed',cfg.noms?'true':'false');if(document.activeElement!==$('mzSon'))$('mzSon').value=cfg.son;if(document.activeElement!==$('mzAff'))$('mzAff').value=cfg.affichage;$('mzPedal').setAttribute('aria-pressed',cfg.pedalPlay?'true':'false');$('zones').hidden=mz;$('mzRow').hidden=!setVis;$('staffBox').hidden=mz;$('scoreBox').hidden=!mz;updSkip();MZ.dots();MZ.noms()}
+const mz=cfg.mode==='morceau';document.body.classList.toggle('mz',mz);{const c=$('mzConsigne');c.hidden=!(mz&&MZ.data&&MZ.data.consigne)}$('mzRestart').hidden=!mz;$('mzPlay').hidden=!mz;$('mzPedal').hidden=!mz;$('mzSonWrap').hidden=!mz;['mzPrev','mzNext','mzLearn','mzNoms','mzSet','mzPdf','mzPup','mzJeux','pageInfo','micRow'].forEach(id=>{$(id).hidden=!mz});{if(!mz&&ANN.on){ANN.on=false;ANN.stop();ANN.avant=null}const a=$('mzAnn');a.hidden=!mz;a.setAttribute('aria-pressed',ANN.on?'true':'false');$('mzAnnUndo').hidden=!(mz&&ANN.on&&ANN.peutAnnuler());const v=$('mzAnnVis');v.hidden=!(mz&&ANN.list().length>0);v.setAttribute('aria-pressed',cfg.annVis!==false?'true':'false');document.documentElement.classList.toggle('annots-cachees',cfg.annVis===false);document.documentElement.classList.toggle('annoter',ANN.on)}$('mzPdf').setAttribute('aria-pressed',mz&&cfg.pdfRow?'true':'false');$('pdfRow').hidden=!(mz&&cfg.pdfRow);$('pdfAng').checked=cfg.pdfAng!==false;$('mzRepEnd').hidden=!(mz&&MZ.part);{const pr=$('mzPrev'),nx=$('mzNext');if(MZ.part){pr.textContent='◀ Note';nx.textContent='Note ▶';pr.title='Recule d\'un accord dans la répartition, sans rien changer : rejoue sa main droite pour le corriger. Garde le bouton enfoncé pour reculer vite. La pédale de gauche fait la même chose.';nx.title='Avance d\'un accord dans la répartition, sans rien changer. Garde le bouton enfoncé pour avancer vite. La pédale du milieu fait la même chose.'}else{pr.textContent='◀ Mesure';nx.textContent='Mesure ▶';pr.title=pr.dataset.t||pr.title;nx.title=nx.dataset.t||nx.title}}pill();const setVis=mz&&cfg.mzSet&&!(MZ.part&&MZ.part.fold);$('mzSet').setAttribute('aria-pressed',setVis?'true':'false');$('mzOrgWrap').hidden=!(mz&&cfg.son==='piano');$('mzTuyWrap').hidden=!(mz&&cfg.son!=='piano');['mzSortieWrap','mzCaler','mzCalV'].forEach(id=>{$(id).hidden=!(mz&&cfg.son!=='piano')});if(document.activeElement!==$('mzSortie'))$('mzSortie').value=cfg.sortieBT?'1':'0';$('mzCalV').textContent=calTexte();$('mzCalV').title='Le décalage entre la note jouée par l\'ordinateur et le son que tu entends, pour cette sortie. « Caler la barre sur le son » le mesure.';if(document.activeElement!==$('mzTuy'))$('mzTuy').value=cfg.tuyaux===false?'0':'1';$('mzOrgV').textContent=cfg.orgPc;$('mzLearn').setAttribute('aria-pressed',cfg.learn?'true':'false');$('mzNoms').setAttribute('aria-pressed',cfg.noms?'true':'false');if(document.activeElement!==$('mzSon'))$('mzSon').value=cfg.son;if(document.activeElement!==$('mzAff'))$('mzAff').value=cfg.affichage;$('mzPedal').setAttribute('aria-pressed',cfg.pedalPlay?'true':'false');$('zones').hidden=mz;$('mzRow').hidden=!setVis;$('staffBox').hidden=mz;$('scoreBox').hidden=!mz;updSkip();MZ.dots();MZ.noms()}
 async function setMode(m){const was=cfg.mode;mineAll();repStop();cfg.mode=m;save();syncUI();
 if(was==='morceau'&&m!=='morceau')MZ.stopAll();
 if(m==='morceau'){if(!MZ.svg||MZ.id!==(cfg.morceau||MZ.id))await MZ.open(cfg.morceau||(MZ.list[0]&&MZ.list[0].id));else{MZ.paginate();MZ.restart()}}
@@ -1741,6 +1865,9 @@ $('mzSet').addEventListener('click',()=>{const vis=cfg.mzSet&&!(MZ.part&&MZ.part
 $('mzRep').addEventListener('click',()=>MZ.partStart());$('mzJrn').addEventListener('click',()=>JRN.exporter());$('mzRepEnd').addEventListener('click',()=>MZ.partEnd(true));$('mzRepClear').addEventListener('click',()=>MZ.partClear());
 $('mzMains').addEventListener('change',e=>{if(!MZ.st)return;MZ.st.mainsSrc=e.target.value;MZ.saveSt();MZ.decorate();MZ.noms();MZ.restart()});
 $('mzPup').addEventListener('click',()=>PUP.enter());
+$('mzAnn').addEventListener('click',()=>ANN.toggle());$('mzAnnUndo').addEventListener('click',()=>ANN.annuler());
+$('mzAnnVis').addEventListener('click',()=>{cfg.annVis=cfg.annVis===false;if(cfg.annVis===false&&ANN.on){ANN.on=false;ANN.stop();ANN.rendre()}save();ANN.refresh();syncUI();JRN.add('annotation',{quoi:cfg.annVis===false?'cachées':'montrées'})});
+$('annSave').addEventListener('click',()=>ANN.exporter());$('annLoad').addEventListener('click',()=>$('annFile').click());$('annFile').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(f)ANN.importer(f)});
 $('mzPdf').addEventListener('click',()=>{cfg.pdfRow=!cfg.pdfRow;save();syncUI();if(cfg.pdfRow)PDFS.rendu()});if(cfg.pdfRow)PDFS.rendu();
 $('pdfAdd').addEventListener('click',()=>$('pdfFile').click());
 $('pdfFile').addEventListener('change',async e=>{const fs=[...e.target.files];e.target.value='';$('pdfMsg').textContent='';let last=null,bad=[];for(const f of fs){try{last=await PDFS.ajoute(f);JRN.add('pdf',{quoi:'ajouté',nom:last.nom,taille:last.taille})}catch(x){bad.push(f.name)}}await PDFS.rendu();if(bad.length)$('pdfMsg').textContent=(bad.length>1?'Ces fichiers ne sont pas des PDF lisibles : ':'Ce fichier n\'est pas un PDF lisible : ')+bad.join(', ')+'.';if(last&&fs.length===1)PUP.enter(last)});
@@ -1771,9 +1898,9 @@ $('scoreSvg').addEventListener('wheel',e=>{if(cfg.mode!=='morceau'||!MZ.svg||e.c
 {let gl=null;const bx=$('scoreSvg');bx.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||cfg.mode!=='morceau'||!MZ.svg)return;gl={id:e.pointerId,y:e.clientY,y0:e.clientY,moved:false};try{bx.setPointerCapture(e.pointerId)}catch(x){}});
 bx.addEventListener('pointermove',e=>{if(!gl||e.pointerId!==gl.id)return;if(!gl.moved&&Math.abs(e.clientY-gl.y0)<8)return;const dy=e.clientY-gl.y;gl.moved=true;gl.y=e.clientY;if(dy)MZ.wheel({deltaY:-dy,deltaMode:0})});
 const fin=e=>{if(gl&&e.pointerId===gl.id){if(gl.moved){MZ.glisse=performance.now();JRN.add('geste',{quoi:'partition défilée au doigt'})}gl=null}};bx.addEventListener('pointerup',fin);bx.addEventListener('pointercancel',fin)}
-$('scoreSvg').addEventListener('click',e=>{if(cfg.mode!=='morceau'||!MZ.svg)return;if(MZ.glisse&&performance.now()-MZ.glisse<400)return;const j=MZ.noteAt(e.clientX,e.clientY);MZ.palette(j,e.clientX,e.clientY)});
+$('scoreSvg').addEventListener('click',e=>{if(cfg.mode!=='morceau'||!MZ.svg)return;if(MZ.glisse&&performance.now()-MZ.glisse<400)return;if(ANN.on){$('notePal').hidden=true;ANN.click(e);return}const j=MZ.noteAt(e.clientX,e.clientY);MZ.palette(j,e.clientX,e.clientY)});
 document.addEventListener('pointerdown',e=>{const P=$('notePal');if(!P.hidden&&!P.contains(e.target)&&!$('scoreSvg').contains(e.target))P.hidden=true});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')$('notePal').hidden=true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('notePal').hidden=true;if(ANN.sel!==null||ANN.pending||!$('annBar').hidden)ANN.stop()}});
 $('mzAff').addEventListener('change',e=>{cfg.affichage=e.target.value;save();MZ.view=null;MZ.paginate()});
 $('mzOrgM').addEventListener('click',()=>orgStep(-1));$('mzOrgP').addEventListener('click',()=>orgStep(1));
 $('mzSon').addEventListener('change',e=>{const was=MZ.playing;MZ.voices.forEach(v=>AUD.stop(v));MZ.voices.clear();OUT.panic();MZ.paintKeys();mineAll();cfg.son=e.target.value;save();syncUI();sonMsg();if(was){MZ.pause();MZ.play()}else MZ.restart()});
@@ -1784,7 +1911,7 @@ $('helpBtn').addEventListener('click',()=>help.classList.add('open'));$('helpClo
 $('weakBtn').addEventListener('click',()=>{renderWeak();wp.classList.add('open')});$('weakClose').addEventListener('click',()=>wp.classList.remove('open'));
 [help,wp].forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
 document.addEventListener('keydown',e=>{if(e.key==='?'&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();help.classList.toggle('open')}});
-window.addEventListener('storage',e=>{if(e.key===LS){const before=JSON.stringify(cfg),bm=cfg.mode;load();renderWeak();if(JSON.stringify(cfg)!==before){if(cfg.mode!==bm)setMode(cfg.mode);else{syncUI();if(cfg.mode!=='morceau')newEx()}}}
+window.addEventListener('storage',e=>{if(e.key===LSA){ANN.load();ANN.refresh();syncUI();return}if(e.key===LS){const before=JSON.stringify(cfg),bm=cfg.mode;load();renderWeak();if(JSON.stringify(cfg)!==before){if(cfg.mode!==bm)setMode(cfg.mode);else{syncUI();if(cfg.mode!=='morceau')newEx()}}}
 else if(e.key&&e.key.indexOf(LSM)===0&&MZ.id&&e.key===LSM+MZ.id&&!MZ.waiting){MZ.st=MZ.settings();MZ.renderControls();renderWeak();MZ.decorate();MZ.noms()}
 else if(MZ.id&&e.key===LSM+MZ.id+'.mains'&&!MZ.part){MZ.loadMains();MZ.decorate();MZ.noms()}});
 if(BC)BC.onmessage=e=>{if(e.data==='morceaux')MZ.refreshList()};
